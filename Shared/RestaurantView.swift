@@ -14,14 +14,14 @@ struct RestaurantView: View {
         NavigationView {
             
             VStack {
-                Text("\(restaurant.name)")
                 Spacer()
                 Text("\(restaurant.address)")
-                
+                Spacer()
                 Button("Dismiss") {
                     dismiss()
                 }
-            }
+                Spacer()
+            }.navigationTitle("\(restaurant.name)")
         }
         
         

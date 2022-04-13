@@ -43,7 +43,7 @@ struct ContentView: View {
 //            print("after running function")
 //            print(body)
             
-        }).navigationBarTitle("Restaurants")
+        }).navigationTitle("Restaurants")
             .listStyle(PlainListStyle())
     }
     
