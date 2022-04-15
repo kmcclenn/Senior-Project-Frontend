@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Auth0
 
 struct ContentView: View {
     @State var restaurants = [Restaurant]()
@@ -13,6 +14,19 @@ struct ContentView: View {
     @State private var restaurantSheet = false
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
     var body: some View {
+        Button("Login") {
+            Auth0
+                .webAuth()
+                .start { result in
+                    switch result {
+                    case .success(let credentials):
+                        print("Obtained credentials: \(credentials)")
+                    case .failure(let error):
+                        print("Failed with: \(error)")
+                    }
+                }
+        }
+        
         //Text("hello")
         
 //            ForEach(restaurants, id: \.self) { restaurant in
@@ -24,28 +38,29 @@ struct ContentView: View {
 //
 //                }
             // what is the difference between List and For Each????
-    NavigationView {
-       List(restaurants) { restaurant in
-           
-           Button("\(restaurant.name)") { restaurantSheet.toggle()
-           }.sheet(isPresented: $restaurantSheet) {
-               RestaurantView(restaurant: restaurant)
-           }
-           
-        }.onAppear(perform: {
-            //print("before running function")
-            loadInstance.loadRestaurant { (restaurants) in
-                self.restaurants = restaurants
-            }
-            print(self.restaurants)
-            //self.restaurants = loadInstance.restaurants
-//            print("restaurants: \(restaurants)")
-//            print("after running function")
-//            print(body)
-            
-        }).navigationTitle("Restaurants")
-            .listStyle(PlainListStyle())
-    }
+//    NavigationView {
+//
+//       List(restaurants) { restaurant in
+//
+//           Button("\(restaurant.name)") { restaurantSheet.toggle()
+//           }.sheet(isPresented: $restaurantSheet) {
+//               RestaurantView(restaurant: restaurant)
+//           }
+//
+//        }.onAppear(perform: {
+//            //print("before running function")
+//            loadInstance.loadRestaurant { (restaurants) in
+//                self.restaurants = restaurants
+//            }
+//            print(self.restaurants)
+//            //self.restaurants = loadInstance.restaurants
+////            print("restaurants: \(restaurants)")
+////            print("after running function")
+////            print(body)
+//
+//        }).navigationTitle("Restaurants")
+//            .listStyle(PlainListStyle())
+//    }
     
     }
     

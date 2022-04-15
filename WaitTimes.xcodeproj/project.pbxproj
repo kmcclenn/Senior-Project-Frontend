@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F06299782808FA690064940C /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = F06299772808FA690064940C /* Auth0 */; };
+		F062997A28090A6D0064940C /* Auth0.plist in Resources */ = {isa = PBXBuildFile; fileRef = F062997928090A6D0064940C /* Auth0.plist */; };
 		F0C0111927EE2991002E82C8 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C0111827EE2991002E82C8 /* RestaurantView.swift */; };
 		F0C0111A27EE2991002E82C8 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C0111827EE2991002E82C8 /* RestaurantView.swift */; };
 		F0E0EFC027D85BCE00FA0DB1 /* Tests_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E0EFBF27D85BCE00FA0DB1 /* Tests_iOS.swift */; };
@@ -41,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F06299752808F8B70064940C /* WaitTimes--iOS--Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "WaitTimes--iOS--Info.plist"; sourceTree = "<group>"; };
+		F062997928090A6D0064940C /* Auth0.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Auth0.plist; sourceTree = "<group>"; };
 		F0C0111827EE2991002E82C8 /* RestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantView.swift; sourceTree = "<group>"; };
 		F0E0EFA727D85BCB00FA0DB1 /* WaitTimesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitTimesApp.swift; sourceTree = "<group>"; };
 		F0E0EFA827D85BCB00FA0DB1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -62,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F06299782808FA690064940C /* Auth0 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,6 +97,8 @@
 		F0E0EFA127D85BCA00FA0DB1 = {
 			isa = PBXGroup;
 			children = (
+				F062997928090A6D0064940C /* Auth0.plist */,
+				F06299752808F8B70064940C /* WaitTimes--iOS--Info.plist */,
 				F0E0EFA627D85BCB00FA0DB1 /* Shared */,
 				F0E0EFB527D85BCE00FA0DB1 /* macOS */,
 				F0E0EFBE27D85BCE00FA0DB1 /* Tests iOS */,
@@ -165,6 +172,9 @@
 			dependencies = (
 			);
 			name = "WaitTimes (iOS)";
+			packageProductDependencies = (
+				F06299772808FA690064940C /* Auth0 */,
+			);
 			productName = "WaitTimes (iOS)";
 			productReference = F0E0EFAE27D85BCE00FA0DB1 /* WaitTimes.app */;
 			productType = "com.apple.product-type.application";
@@ -257,6 +267,9 @@
 				Base,
 			);
 			mainGroup = F0E0EFA127D85BCA00FA0DB1;
+			packageReferences = (
+				F06299762808FA690064940C /* XCRemoteSwiftPackageReference "Auth0" */,
+			);
 			productRefGroup = F0E0EFAF27D85BCE00FA0DB1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -275,6 +288,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F0E0EFD327D85BCE00FA0DB1 /* Assets.xcassets in Resources */,
+				F062997A28090A6D0064940C /* Auth0.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,6 +428,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ENABLE_BATCH_MODE = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -466,6 +481,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_ENABLE_BATCH_MODE = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;
@@ -480,6 +496,7 @@
 				DEVELOPMENT_TEAM = 68GT4U949B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "WaitTimes--iOS--Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -510,6 +527,7 @@
 				DEVELOPMENT_TEAM = 68GT4U949B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "WaitTimes--iOS--Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -717,6 +735,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F06299762808FA690064940C /* XCRemoteSwiftPackageReference "Auth0" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/auth0/Auth0.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F06299772808FA690064940C /* Auth0 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F06299762808FA690064940C /* XCRemoteSwiftPackageReference "Auth0" */;
+			productName = Auth0;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F0E0EFA227D85BCA00FA0DB1 /* Project object */;
 }
