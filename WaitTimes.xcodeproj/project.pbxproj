@@ -11,6 +11,8 @@
 		F062997A28090A6D0064940C /* Auth0.plist in Resources */ = {isa = PBXBuildFile; fileRef = F062997928090A6D0064940C /* Auth0.plist */; };
 		F0C0111927EE2991002E82C8 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C0111827EE2991002E82C8 /* RestaurantView.swift */; };
 		F0C0111A27EE2991002E82C8 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C0111827EE2991002E82C8 /* RestaurantView.swift */; };
+		F0D24C622820817600CFC467 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D24C612820817600CFC467 /* LoginView.swift */; };
+		F0D24C632820817600CFC467 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D24C612820817600CFC467 /* LoginView.swift */; };
 		F0E0EFC027D85BCE00FA0DB1 /* Tests_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E0EFBF27D85BCE00FA0DB1 /* Tests_iOS.swift */; };
 		F0E0EFC227D85BCE00FA0DB1 /* Tests_iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E0EFC127D85BCE00FA0DB1 /* Tests_iOSLaunchTests.swift */; };
 		F0E0EFCC27D85BCE00FA0DB1 /* Tests_macOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E0EFCB27D85BCE00FA0DB1 /* Tests_macOS.swift */; };
@@ -46,6 +48,7 @@
 		F06299752808F8B70064940C /* WaitTimes--iOS--Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "WaitTimes--iOS--Info.plist"; sourceTree = "<group>"; };
 		F062997928090A6D0064940C /* Auth0.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Auth0.plist; sourceTree = "<group>"; };
 		F0C0111827EE2991002E82C8 /* RestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantView.swift; sourceTree = "<group>"; };
+		F0D24C612820817600CFC467 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F0E0EFA727D85BCB00FA0DB1 /* WaitTimesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitTimesApp.swift; sourceTree = "<group>"; };
 		F0E0EFA827D85BCB00FA0DB1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F0E0EFA927D85BCE00FA0DB1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -115,6 +118,7 @@
 				F0E0EFE327D85C7500FA0DB1 /* Restaurant.swift */,
 				F0E0EFA927D85BCE00FA0DB1 /* Assets.xcassets */,
 				F0C0111827EE2991002E82C8 /* RestaurantView.swift */,
+				F0D24C612820817600CFC467 /* LoginView.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -324,6 +328,7 @@
 				F0E0EFD127D85BCE00FA0DB1 /* ContentView.swift in Sources */,
 				F0E0EFCF27D85BCE00FA0DB1 /* WaitTimesApp.swift in Sources */,
 				F0E0EFE427D85C7500FA0DB1 /* Restaurant.swift in Sources */,
+				F0D24C622820817600CFC467 /* LoginView.swift in Sources */,
 				F0C0111927EE2991002E82C8 /* RestaurantView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -335,6 +340,7 @@
 				F0E0EFD227D85BCE00FA0DB1 /* ContentView.swift in Sources */,
 				F0E0EFD027D85BCE00FA0DB1 /* WaitTimesApp.swift in Sources */,
 				F0E0EFE527D85C7500FA0DB1 /* Restaurant.swift in Sources */,
+				F0D24C632820817600CFC467 /* LoginView.swift in Sources */,
 				F0C0111A27EE2991002E82C8 /* RestaurantView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
