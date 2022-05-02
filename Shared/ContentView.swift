@@ -16,30 +16,10 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Button("Login") {
-                Auth0
-                    .webAuth()
-                    .audience("https://waittimes/api")
-                    .start { result in
-                        switch result {
-                        case .success(let credentials):
-                            print("Obtained credentials: \(credentials)")
-                            // then add access token and query user
-                        case .failure(let error):
-                            print("Failed with: \(error)")
-                        }
-                    }
+                
             }
             Button("Logout") {
-                Auth0
-                    .webAuth()
-                    .clearSession { result in
-                        switch result {
-                        case .success:
-                            print("Logged out")
-                        case .failure(let error):
-                            print("Failed with: \(error)")
-                        }
-                    }
+            
             }
             NavigationView {
 
@@ -65,22 +45,8 @@ struct ContentView: View {
                     .listStyle(PlainListStyle())
             }
         }
-//        Text("hello")
-//
-//            ForEach(restaurants, id: \.self) { restaurant in
-//
-//                VStack {
-//
-//                    Text("\(restaurant.name)")
-//
-//
-//                }
-             //what is the difference between List and For Each????
-    
-    
     }
-    
-    }
+}
     
     
 
@@ -122,7 +88,21 @@ data, response, error in
                 
         }.resume()
     }
-    
+}
+
+
+
+
+struct LoginView : View {
+    @Environment(\.presentationMode) var presentationMode
+    var function: () -> Void
+    @State var username: String = ""
+    @State var password: String = ""
+
+    var body: some View {
+        TextField("Username: ", text: $username)
+        SecureField("Password: ", text: $password)
+    }
     func postUser(userData: User, accessToken: String, completion:@escaping (User) -> ()) {
         //print("loaded started")
         //print(self.restaurants)
@@ -140,12 +120,12 @@ data, response, error in
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")// add access token here
+        request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")// add access token here ?/ NEEDS FIXING
         request.httpBody = encoded
         //print("request created")
         URLSession.shared.dataTask(with: request) {data, response, error in
             if let data = data {
-//
+    //
                 if let response = try? JSONDecoder().decode(User.self, from: data) {
                     print(response)
                     DispatchQueue.main.async {
@@ -161,9 +141,8 @@ data, response, error in
                 
         }.resume()
     }
+
 }
-
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
