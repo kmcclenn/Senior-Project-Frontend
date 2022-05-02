@@ -32,3 +32,8 @@ struct Address: Codable, Hashable, Identifiable {
     let route: String?
     let locality: String?
 }
+
+struct SimpleUser: Codable, Hashable, Identifiable {
+    let username: String
+    let password: String
+}
