@@ -33,7 +33,7 @@ struct Address: Codable, Hashable, Identifiable {
     let locality: String?
 }
 
-struct SimpleUser: Codable, Hashable, Identifiable {
+struct SimpleUser: Codable, Hashable {
     let username: String
     let password: String
 }

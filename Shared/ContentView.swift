@@ -106,7 +106,7 @@ struct LoginView : View {
 
     var body: some View {
         VStack {
-            TextField("Username", text: $username)
+            TextField("Username", text: $username).disableAutocorrection(true)
             SecureField("Password", text: $password)
             Button("Dismiss") {
                 dismiss()
@@ -123,7 +123,7 @@ struct LoginView : View {
                         }
                     case.failure(let error):
                         //self.loginAlert = true
-                        print(error.localizedDescription)
+                        print("error: \(error.localizedDescription)")
                 }
       
             
@@ -135,8 +135,9 @@ struct LoginView : View {
     }
     
     enum AuthenticationError: Error {
-        case invalidCredentials
         case custom(errorMessage: String)
+        case invalidCredentials
+        
     }
     
     func postUser(username: String, password: String, completion: @escaping(Result < String, AuthenticationError > ) -> Void) {
@@ -154,15 +155,17 @@ struct LoginView : View {
             print("failed to encode")
             return
         }
+        //print("encoded: \(String(decoding: encoded, as:UTF8.self))")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        //request.addValue("Token ", forHTTPHeaderField: "Authorization")// add access token here ?/ NEEDS FIXING
+        request.addValue("Basic a21jY2xlbm46ZGV4SVNkZXgzMTQ=", forHTTPHeaderField: "Authorization")// add access token here ?/ NEEDS FIXING
         request.httpBody = encoded
         //print("request created")
         URLSession.shared.dataTask(with: request) {data, response, error in
+            print("data: \(String(decoding: data!, as: UTF8.self))")
             if let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : String] {
                 guard let token = json["token"] else {
                     completion(.failure(.invalidCredentials))
@@ -181,7 +184,7 @@ struct LoginView : View {
                 return
             } else {
                 completion(.failure(.invalidCredentials))
-                print("response decoding failed")
+                print("response decoding failed for user")
             }
                 
         }.resume()
