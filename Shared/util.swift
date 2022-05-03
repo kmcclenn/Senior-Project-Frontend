@@ -53,4 +53,16 @@ final class KeychainHelper {
         }
         return (result as? Data)
     }
+    
+    func delete(service: String, account: String) {
+        
+        let query = [
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecClass: kSecClassGenericPassword,
+            ] as CFDictionary
+        
+        // Delete item from keychain
+        SecItemDelete(query)
+    }
 }

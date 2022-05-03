@@ -13,6 +13,9 @@ struct ContentView: View {
     @StateObject var loadInstance = Load()
     @State private var restaurantSheet = false
     @State private var loginSheet = false
+    @State var loggedIn: Bool = false
+    @State var token: String?
+    @StateObject var loginClass = Login()
     //@State var defaults = UserDefaults.standard
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
     var body: some View {
@@ -26,14 +29,21 @@ struct ContentView: View {
             
             
             // maybe error here?
-            let data = try? KeychainHelper.standard.read(service: "token", account: "user")
-            if data != nil {
-                let token = String(data: data!, encoding: .utf8)
-                Text("logged in")
-            }
+            
+            
+            
 //
             NavigationView {
                 VStack {
+                    if loggedIn == true {
+                        
+                        Text("logged in")
+                            .onAppear(perform: {
+                                let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+                                token = String(data: data ?? Data.init(), encoding: .utf8)
+                            })
+                        // then use token for any necessary api calls.
+                    }
                     List(restaurants) { restaurant in
 
                         Button("\(restaurant.name)") { restaurantSheet.toggle()
@@ -42,13 +52,20 @@ struct ContentView: View {
                         }
 
                     }.onAppear(perform: {
+                        print(loginClass.isAuthenticated)
                          loadInstance.loadRestaurant { (restaurants) in
                              self.restaurants = restaurants
                          }
                     }).listStyle(PlainListStyle())
-                    NavigationLink("Login", destination: LoginView())
+                    NavigationLink("Login", destination: LoginView(loginClass: loginClass))
+                        .onChange(of: loginClass.isAuthenticated) { newValue in
+                            loggedIn = newValue
+                        }
+                        
+                    Button(action: { signoutUser() }, label: { Text("Logout") })
                 }
                .navigationTitle("Restaurants")
+               
                 
                 
             }
@@ -57,11 +74,11 @@ struct ContentView: View {
     
     func signoutUser() {
         
-        
-        print(UserDefaults.standard.dictionaryRepresentation())
-        UserDefaults.standard.removeObject(forKey: "tokenName")
+        KeychainHelper.standard.delete(service: "token", account: "user")
+
         DispatchQueue.main.async {
-            //self.isAuthenticated = false
+            loginClass.isAuthenticated = false
+            token = nil
         }
     }
 }

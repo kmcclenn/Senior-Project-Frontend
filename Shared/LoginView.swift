@@ -8,9 +8,13 @@
 import SwiftUI
 
 struct LoginView : View {
+    
+    let loginClass: Login
+    
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
-    @State public var isAuthenticated = false // not sure if needed
+    @State private var showAlert = false
+    
     //let defaults = UserDefaults.standard
 
     //var function: () -> Void
@@ -29,29 +33,68 @@ struct LoginView : View {
                 dismiss()
             }
             Button(action: {
-                loginUser(username: username, password: password) { result in
-                                      
+                loginClass.loginUser(username: username, password: password) { result in
+                    print("result: \(result)")
                     switch result {
                     case.success(let token):
                         print("login success, token: \(token)")
                         //UserDefaults.standard.setValue(token, forKey: "tokenName") - saving here is bad.
                         let data = Data(token.utf8)
                         KeychainHelper.standard.save(data, service: "token", account: "user")
+                        loginClass.isAuthenticated = true
+                        print("is auth: \(loginClass.isAuthenticated)")
                         DispatchQueue.main.async {
-                            self.isAuthenticated = true
+                            
                         }
                     case.failure(let error):
                         //self.loginAlert = true
-                        print("error: \(error.localizedDescription)")
+                        print("failure error: \(error.localizedDescription)")
+                        self.showAlert = true
                 }
       
             
             
                 }
-            }, label: { Text("Save") })
-            
+            }, label: { Text("Login") })
+            .alert(isPresented: $showAlert) {
+                 Alert(title: Text("Login Error"),
+                 message: Text("Please check username and password."),
+                 dismissButton: .default(Text("Okay"))
+              )
+            }
         }
     }
+    
+    
+    
+    
+    
+    
+
+}
+
+//class Authenticated {
+//    let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+//    static var isAuthenticated: Bool = false
+//
+//    private init() {
+//        if data != nil {
+//            Authenticated.isAuthenticated = true
+//        }
+//    }
+//}
+
+final class Login: ObservableObject {
+    @Published var isAuthenticated: Bool = false
+    let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+    
+    init() {
+        if data != nil {
+            isAuthenticated = true
+        }
+        self.isAuthenticated = isAuthenticated
+    }
+    
     
     enum AuthenticationError: Error {
         case custom(errorMessage: String)
@@ -66,7 +109,7 @@ struct LoginView : View {
             return
         }
         
-        let userData = SimpleUser(username: self.username, password: self.password)
+        let userData = SimpleUser(username: username, password: password)
         
         guard let encoded = try? JSONEncoder().encode(userData) else {
             print("failed to encode")
@@ -107,12 +150,11 @@ struct LoginView : View {
         }.resume()
     }
     
-    
-
 }
+
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginView(loginClass: Login())
     }
 }
