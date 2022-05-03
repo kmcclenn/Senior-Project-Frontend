@@ -35,7 +35,7 @@ struct ContentView: View {
 //
             NavigationView {
                 VStack {
-                    if loggedIn == true {
+                    if loggedIn {
                         
                         Text("logged in")
                             .onAppear(perform: {
@@ -51,18 +51,24 @@ struct ContentView: View {
                             RestaurantView(restaurant: restaurant)
                         }
 
+                    }.refreshable {
+                        loadInstance.loadRestaurant { (restaurants) in
+                            self.restaurants = restaurants
+                        }
                     }.onAppear(perform: {
                         print(loginClass.isAuthenticated)
                          loadInstance.loadRestaurant { (restaurants) in
                              self.restaurants = restaurants
                          }
                     }).listStyle(PlainListStyle())
+                    if !loggedIn {
                     NavigationLink("Login", destination: LoginView(loginClass: loginClass))
                         .onChange(of: loginClass.isAuthenticated) { newValue in
                             loggedIn = newValue
                         }
-                        
-                    Button(action: { signoutUser() }, label: { Text("Logout") })
+                    } else {
+                        Button(action: { signoutUser() }, label: { Text("Logout") })
+                    }
                 }
                .navigationTitle("Restaurants")
                
@@ -78,6 +84,7 @@ struct ContentView: View {
 
         DispatchQueue.main.async {
             loginClass.isAuthenticated = false
+            loggedIn = false
             token = nil
         }
     }
@@ -90,6 +97,7 @@ class Load: ObservableObject {
     @Published var restaurants = [Restaurant]()
     
     
+
     
     func loadRestaurant(completion:@escaping ([Restaurant]) -> ()) {
         //print("loaded started")
