@@ -13,7 +13,7 @@ struct ContentView: View {
     @StateObject var loadInstance = Load()
     @State private var restaurantSheet = false
     @State private var loginSheet = false
-    @State var defaults = UserDefaults.standard
+    //@State var defaults = UserDefaults.standard
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
     var body: some View {
         VStack {
@@ -24,9 +24,9 @@ struct ContentView: View {
             Button("Logout") {
                 signoutUser()
             }
-            if defaults.string(forKey: "tokenName") != nil {
-                Text("logged in")
-            }
+//            if  { READ DATA FROM KEYCHAIN
+//                Text("logged in")
+//            }
             NavigationView {
 
                List(restaurants) { restaurant in

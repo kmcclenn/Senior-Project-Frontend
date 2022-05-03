@@ -34,7 +34,9 @@ struct LoginView : View {
                     switch result {
                     case.success(let token):
                         print("login success, token: \(token)")
-                        UserDefaults.standard.setValue(token, forKey: "tokenName")
+                        //UserDefaults.standard.setValue(token, forKey: "tokenName") - saving here is bad.
+                        let data = Data(token.utf8)
+                        KeychainHelper.standard.save(data, service: "token", account: "user")
                         DispatchQueue.main.async {
                             self.isAuthenticated = true
                         }
