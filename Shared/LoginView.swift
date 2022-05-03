@@ -29,9 +29,7 @@ struct LoginView : View {
                 .textContentType(.username)
             SecureField("Password", text: $password)
                 .textContentType(.password)
-            Button("Dismiss") {
-                dismiss()
-            }
+            
             Button(action: {
                 loginClass.loginUser(username: username, password: password) { result in
                     print("result: \(result)")
@@ -41,20 +39,23 @@ struct LoginView : View {
                         //UserDefaults.standard.setValue(token, forKey: "tokenName") - saving here is bad.
                         let data = Data(token.utf8)
                         KeychainHelper.standard.save(data, service: "token", account: "user")
-                        loginClass.isAuthenticated = true
-                        print("is auth: \(loginClass.isAuthenticated)")
                         DispatchQueue.main.async {
-                            
+                            loginClass.isAuthenticated = true
+                            presentationMode.wrappedValue.dismiss()
                         }
+                        
+                        print("is auth: \(loginClass.isAuthenticated)")
+                        
                     case.failure(let error):
                         //self.loginAlert = true
                         print("failure error: \(error.localizedDescription)")
                         self.showAlert = true
-                }
+                    }
       
             
             
                 }
+                
             }, label: { Text("Login") })
             .alert(isPresented: $showAlert) {
                  Alert(title: Text("Login Error"),
