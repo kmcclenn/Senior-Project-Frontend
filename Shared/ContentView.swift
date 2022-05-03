@@ -16,39 +16,41 @@ struct ContentView: View {
     //@State var defaults = UserDefaults.standard
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
     var body: some View {
+        
         VStack {
-            Button("Login") { loginSheet.toggle()
-            }.sheet(isPresented: $loginSheet) {
-                LoginView()
-            }
-            Button("Logout") {
-                signoutUser()
-            }
-//            if  { READ DATA FROM KEYCHAIN
-//                Text("logged in")
+//            Button("Login") { loginSheet.toggle()
+//            }.sheet(isPresented: $loginSheet) {
+//                LoginView()
 //            }
+            
+            
+            
+            // maybe error here?
+            let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+            if data != nil {
+                let token = String(data: data!, encoding: .utf8)
+                Text("logged in")
+            }
+//
             NavigationView {
+                VStack {
+                    List(restaurants) { restaurant in
 
-               List(restaurants) { restaurant in
+                        Button("\(restaurant.name)") { restaurantSheet.toggle()
+                        }.sheet(isPresented: $restaurantSheet) {
+                            RestaurantView(restaurant: restaurant)
+                        }
 
-                   Button("\(restaurant.name)") { restaurantSheet.toggle()
-                   }.sheet(isPresented: $restaurantSheet) {
-                       RestaurantView(restaurant: restaurant)
-                   }
-
-                }.onAppear(perform: {
-                    //print("before running function")
-                    loadInstance.loadRestaurant { (restaurants) in
-                        self.restaurants = restaurants
-                    }
-                    print(self.restaurants)
-                    //self.restaurants = loadInstance.restaurants
-        //            print("restaurants: \(restaurants)")
-        //            print("after running function")
-        //            print(body)
-
-                }).navigationTitle("Restaurants")
-                    .listStyle(PlainListStyle())
+                    }.onAppear(perform: {
+                         loadInstance.loadRestaurant { (restaurants) in
+                             self.restaurants = restaurants
+                         }
+                    }).listStyle(PlainListStyle())
+                    NavigationLink("Login", destination: LoginView())
+                }
+               .navigationTitle("Restaurants")
+                
+                
             }
         }
     }

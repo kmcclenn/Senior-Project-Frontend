@@ -31,4 +31,26 @@ final class KeychainHelper {
             print("Error: \(status)")
         }
     }
+    
+    func read(service: String, account: String) throws -> Data? {
+        
+        enum readingError: Error {
+            case failure
+        }
+        
+        let query = [
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+            kSecClass: kSecClassGenericPassword,
+            kSecReturnData: true
+        ] as CFDictionary
+        
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query, &result)
+        //result = nil
+        if status != errSecSuccess {
+            throw readingError.failure
+        }
+        return (result as? Data)
+    }
 }
