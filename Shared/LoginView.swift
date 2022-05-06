@@ -126,7 +126,7 @@ final class Login: ObservableObject {
         request.httpBody = encoded
         //print("request created")
         URLSession.shared.dataTask(with: request) {data, response, error in
-            print("data: \(String(decoding: data!, as: UTF8.self))")
+            print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
             if let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : String] {
                 guard let token = json["token"] else {
                     completion(.failure(.invalidCredentials))
