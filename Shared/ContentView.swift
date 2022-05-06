@@ -46,7 +46,7 @@ struct ContentView: View {
                         // then use token for any necessary api calls.
                     }
                     List(restaurants) { restaurant in
-                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id] ?? -1, loggedIn: loggedIn)) {
+                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id] ?? -1, loggedIn: loggedIn, loginClass: loginClass)) {
                             Text("\(restaurant.name)")
                         }
 //                        Button("\(restaurant.name)") {

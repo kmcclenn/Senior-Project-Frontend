@@ -74,16 +74,6 @@ struct LoginView : View {
 
 }
 
-//class Authenticated {
-//    let data = try? KeychainHelper.standard.read(service: "token", account: "user")
-//    static var isAuthenticated: Bool = false
-//
-//    private init() {
-//        if data != nil {
-//            Authenticated.isAuthenticated = true
-//        }
-//    }
-//}
 
 final class Login: ObservableObject {
     @Published var isAuthenticated: Bool = false
@@ -100,7 +90,6 @@ final class Login: ObservableObject {
     enum AuthenticationError: Error {
         case custom(errorMessage: String)
         case invalidCredentials
-        
     }
     
     func loginUser(username: String, password: String, completion: @escaping(Result < String, AuthenticationError > ) -> Void) {

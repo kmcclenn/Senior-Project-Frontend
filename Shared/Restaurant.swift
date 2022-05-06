@@ -42,3 +42,15 @@ struct WaitTime: Codable, Hashable, Identifiable {
     let averageWaittimeWithinPast30Minutes: Float
     let waitList: String
 }
+
+struct InputWaitTime: Codable, Hashable, Identifiable {
+    let id: Int?
+    let restaurant: Restaurant
+    let waitLength: Int?
+    let reportingUser: User
+    let accuracy: Float?
+    let pointValue: Int?
+    let postTime: String?
+    let arrivalTime: String?
+    let seatedTime: String?
+}
