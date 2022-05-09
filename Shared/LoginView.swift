@@ -35,10 +35,17 @@ struct LoginView : View {
                     print("result: \(result)")
                     switch result {
                     case.success(let tuple):
-                        print("login success, token: \(tuple.0)")
+                        print("login success, token: \(tuple.1)")
                         //UserDefaults.standard.setValue(token, forKey: "tokenName") - saving here is bad.
                         let data = Data(tuple.0.utf8)
+                        let idData = Data(String(tuple.1).utf8)
+//                        guard let idData = try? JSONEncoder().encode(Data(id: tuple.1)) else {
+//                            print("fail")
+//                        }
+                        //let idData = Data("{")
+                        //print(String(data: idData, encoding: .utf8))
                         KeychainHelper.standard.save(data, service: "token", account: "user")
+                        KeychainHelper.standard.save(idData, service: "id", account: "user")
                         DispatchQueue.main.async {
                             loginClass.isAuthenticated = true
                             loginClass.id = Int(tuple.1)
@@ -79,13 +86,25 @@ struct LoginView : View {
 final class Login: ObservableObject {
     @Published var isAuthenticated: Bool = false
     let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+    let userId = try? KeychainHelper.standard.read(service: "id", account: "user")
     @Published var id: Int = -1
     
     init() {
+        //print("keychain data: \(String(data: userId!, encoding: .utf8))")
         if data != nil {
             isAuthenticated = true
+            //id = userId!
+            
+            
+        }
+        if userId != nil {
+            id = Int(String(data: userId!, encoding: .utf8)!)!
+            //print("aaid: \(aaid)")
         }
         self.isAuthenticated = isAuthenticated
+        self.id = id
+        print(self.id)
+        // store id in keychain too.
     }
     
     

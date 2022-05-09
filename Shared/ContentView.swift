@@ -14,10 +14,11 @@ struct ContentView: View {
     @StateObject var loadInstance = Load()
     @State private var restaurantSheet = false
     @State private var loginSheet = false
+    @StateObject var loginClass = Login()
     @State var loggedIn: Bool = false
     @State var username: String = ""
     @State var token: String?
-    @StateObject var loginClass = Login()
+    
     @State var currentUser: User?
     //@State var user: User?
     //@State var defaults = UserDefaults.standard
@@ -52,32 +53,15 @@ struct ContentView: View {
                         NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil)) {
                             Text("\(restaurant.name)")
                         }
-//                        Button("\(restaurant.name)") {
-//                            loadInstance.loadWaitTime(restaurantID: restaurant.id) { waitLength in
-//                                self.waitTimes[restaurant.id] = waitLength
-//                                if waitTimes[restaurant.id] != nil {
-//                                    restaurantSheet.toggle()
-//                                    print("toggled - sheet showing. waittimeself: \(self.waitTimes)")
 //
-//                                } else {
-//                                    print("data not saved yet")
-//                                }
-//
-//
-//                            }
-//
-//                        }.sheet(isPresented: $restaurantSheet) {
-//
-//                            RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id] ?? -1)
-//                        }
-
                     }.refreshable {
                         loadInstance.loadRestaurant { (restaurants) in
                             self.restaurants = restaurants
                         }
                     }.onAppear(perform: {
                         print("is authenticated: \(loginClass.isAuthenticated)")
-                        print("is logged in \(loggedIn)")
+                        
+                        //print("is logged in \(loggedIn)")
                          loadInstance.loadRestaurant { (restaurants) in
                              self.restaurants = restaurants
                              for restaurant in self.restaurants {
@@ -86,18 +70,21 @@ struct ContentView: View {
                                  }
                              }
                          }
+                        if loginClass.isAuthenticated {
+                            self.loggedIn = true
+                            
+                        }
                         loadInstance.loadUser(user_id: loginClass.id) { newUser in
                             self.currentUser = newUser
+                            
                             print("load instance closure running")
                         }
-                        
+                        //self.loggedIn = loginClass.isAuthenticated
+                        print("is logged in \(loggedIn)")
+                        print("current user: \(String(describing: currentUser))")
                         
                     }).listStyle(PlainListStyle())
-                    Button {
-                        signoutUser()
-                    } label: {
-                        Text("signout")
-                    }
+                    
 
                     if !loggedIn {
                     NavigationLink("Login", destination: LoginView(loginClass: loginClass))
@@ -128,7 +115,7 @@ struct ContentView: View {
     func signoutUser() {
         
         KeychainHelper.standard.delete(service: "token", account: "user")
-
+        KeychainHelper.standard.delete(service: "id", account: "user")
         DispatchQueue.main.async {
             loginClass.isAuthenticated = false
             loggedIn = false

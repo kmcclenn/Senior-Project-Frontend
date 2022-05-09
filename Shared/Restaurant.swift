@@ -62,3 +62,7 @@ struct InputWaitTimeRead: Identifiable, Codable, Hashable {
     let arrivalTime: String
     let seatedTime: String
 }
+
+struct idData: Identifiable, Codable, Hashable {
+    let id: Int
+}
