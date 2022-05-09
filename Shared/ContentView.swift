@@ -25,7 +25,7 @@ struct ContentView: View {
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
     var body: some View {
         
-        VStack {
+       
 //            Button("Login") { loginSheet.toggle()
 //            }.sheet(isPresented: $loginSheet) {
 //                LoginView()
@@ -105,11 +105,18 @@ struct ContentView: View {
                     }
                 }
                .navigationTitle("Restaurants")
-               
+               .toolbar {
+                   ToolbarItemGroup(placement: .navigationBarTrailing) {
+                       if loggedIn && currentUser != nil {
+                           NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!))
+                       }
+                       
+                   }
+               }
                 
                 
             }
-        }
+        
     }
     
     func signoutUser() {

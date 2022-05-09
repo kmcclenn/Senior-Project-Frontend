@@ -25,9 +25,12 @@ struct RestaurantView: View {
     @State var message: String = ""
     @State private var showAlert = false
     
+    @State var showArrival: Bool = false
+    @State var showSeated: Bool = false
+    
     @State var inputTime: Int = 0
-    @State var arrivalTime = Date()
-    @State var seatedTime = Date() // then use DateFormatter to convert to string - same as arrivalTime
+    @State var arrivalTime: Date = Date()
+    @State var seatedTime: Date = Date() // then use DateFormatter to convert to string - same as arrivalTime
     
     var body: some View {
         NavigationView {
@@ -35,6 +38,9 @@ struct RestaurantView: View {
             VStack {
                 Spacer()
                 Text("\(restaurant.address)")
+                    .onChange(of: inputTime) { newValue in
+                        print(newValue)
+                    }
                 Spacer()
                 if (waitTime == -1.0) {
                     Text("No user inputs yet. Be the first!")
@@ -53,13 +59,37 @@ struct RestaurantView: View {
                         Text("Report your own wait time here:") // add a constraint that must be int - if not alert
                         
                         Form {
-                            TextField("WaitTime", value: $inputTime, formatter: numberFormatter)
-                            DatePicker("Arrival Time", selection: $arrivalTime, displayedComponents: [.date, .hourAndMinute])
-                            DatePicker("Seated Time", selection: $seatedTime, displayedComponents: [.date, .hourAndMinute])
+                            Toggle("Show Arrival Time", isOn: $showArrival)
+                            Toggle("Show Seated Time", isOn: $showSeated)
+                            HStack {
+                                TextField("WaitTime", value: $inputTime, formatter: numberFormatter)
+                                Text("minutes")
+                                    .font(.headline)
+                                    .bold()
+                            }
+                            
+                            if showArrival {
+                                DatePicker("Arrival Time", selection: $arrivalTime, displayedComponents: [.date, .hourAndMinute])
+                            }
+                            if showSeated {
+                                DatePicker("Seated Time", selection: $seatedTime, displayedComponents: [.date, .hourAndMinute])
+                            }
+                            
+                                
                         }
                         
                         Button {
-                            updateInstance.updateRestaurant(inputTime: inputTime, arrivalTime: arrivalTime, seatedTime: seatedTime, restaurant: restaurant, currentUser: currentUser!) {result in
+                            print("inputTime: \(inputTime)")
+                            var arrival: Date? = nil
+                            if showArrival {
+                                arrival = arrivalTime
+                            }
+                            
+                            var seated: Date? = nil
+                            if showSeated {
+                                seated = seatedTime
+                            }
+                            updateInstance.updateRestaurant(inputTime: inputTime, arrivalTime: arrival, seatedTime: seated, restaurant: restaurant, currentUser: currentUser!) {result in
                                 switch result {
                                 case.success(_):
                                     reload()
@@ -115,7 +145,7 @@ final class Update: ObservableObject {
         case notSignedIn
     }
     
-    func updateRestaurant(inputTime: Int, arrivalTime: Date?, seatedTime: Date?, restaurant: Restaurant, currentUser: User, completion: @escaping(Result < String, InputError > ) -> Void) {
+    func updateRestaurant(inputTime: Int?, arrivalTime: Date?, seatedTime: Date?, restaurant: Restaurant, currentUser: User, completion: @escaping(Result < String, InputError > ) -> Void) {
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
@@ -126,11 +156,21 @@ final class Update: ObservableObject {
         if arrivalTime != nil {
             arrivalTimeString = formatter.string(from: arrivalTime!)
         }
+        //print("arrival time string: \(arrivalTimeString)")
+        
         if seatedTime != nil {
             seatedTimeString = formatter.string(from: seatedTime!)
         }
+        //print("seated time string: \(seatedTimeString)")
         
         
+        //print("inputTime: \(inputTime), arrivalTime: \(arrivalTime), seatedTIme: \(seatedTime)")
+        if (inputTime == nil && arrivalTime == nil && seatedTime == nil) {
+            completion(.failure(.custom(errorMessage: "You must input either a wait time or a seated time and arrival time. Try again.")))
+            return
+        }
+        
+        //if (inputTime)
         
         guard let url = URL(string: "http://127.0.0.1:8000/api/inputtedwaittimes/") else {
             print("api is down")
@@ -149,12 +189,12 @@ final class Update: ObservableObject {
             print("failed to encode")
             return
         }
-        print("encoded: \(String(describing: String(data: encoded, encoding: .utf8)))")
+        //print("encoded: \(String(describing: String(data: encoded, encoding: .utf8)))")
         let data = try? KeychainHelper.standard.read(service: "token", account: "user")
         var token = String(data: data ?? Data.init(), encoding: .utf8)
         token = token!
         
-        print("token: \(token!)")
+        //print("token: \(token!)")
         
         if token == nil {
             completion(.failure(.notSignedIn))

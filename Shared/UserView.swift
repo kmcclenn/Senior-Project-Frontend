@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UserView: View {
+    @State var currentUser: User
     var body: some View {
         Text("User!!!!!!!!")
     }
@@ -17,6 +18,6 @@ struct UserView: View {
 
 struct UserView_Previews: PreviewProvider {
     static var previews: some View {
-        UserView()
+        UserView(currentUser: User(id: 1, username: "", firstName: "", lastName: "", email: ""))
     }
 }
