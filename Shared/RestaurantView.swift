@@ -118,8 +118,9 @@ final class Update: ObservableObject {
     func updateRestaurant(inputTime: Int, arrivalTime: Date?, seatedTime: Date?, restaurant: Restaurant, currentUser: User, completion: @escaping(Result < String, InputError > ) -> Void) {
         
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'hh:mm:ss'Z'"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         formatter.timeZone = TimeZone(abbreviation: "UTC")
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         var arrivalTimeString: String? = nil
         var seatedTimeString: String? = nil
         if arrivalTime != nil {
