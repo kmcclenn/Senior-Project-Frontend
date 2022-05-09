@@ -15,8 +15,11 @@ struct ContentView: View {
     @State private var restaurantSheet = false
     @State private var loginSheet = false
     @State var loggedIn: Bool = false
+    @State var username: String = ""
     @State var token: String?
     @StateObject var loginClass = Login()
+    @State var currentUser: User?
+    //@State var user: User?
     //@State var defaults = UserDefaults.standard
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
     var body: some View {
@@ -36,9 +39,9 @@ struct ContentView: View {
 //
             NavigationView {
                 VStack {
-                    if loggedIn {
+                    if loggedIn && currentUser != nil {
                         
-                        Text("logged in")
+                        Text("logged in: \(currentUser!.username)")
                             .onAppear(perform: {
                                 let data = try? KeychainHelper.standard.read(service: "token", account: "user")
                                 token = String(data: data ?? Data.init(), encoding: .utf8)
@@ -46,7 +49,7 @@ struct ContentView: View {
                         // then use token for any necessary api calls.
                     }
                     List(restaurants) { restaurant in
-                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id] ?? -1, loggedIn: loggedIn, loginClass: loginClass)) {
+                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil)) {
                             Text("\(restaurant.name)")
                         }
 //                        Button("\(restaurant.name)") {
@@ -73,7 +76,8 @@ struct ContentView: View {
                             self.restaurants = restaurants
                         }
                     }.onAppear(perform: {
-                        print(loginClass.isAuthenticated)
+                        print("is authenticated: \(loginClass.isAuthenticated)")
+                        print("is logged in \(loggedIn)")
                          loadInstance.loadRestaurant { (restaurants) in
                              self.restaurants = restaurants
                              for restaurant in self.restaurants {
@@ -82,15 +86,33 @@ struct ContentView: View {
                                  }
                              }
                          }
-                        
+                        loadInstance.loadUser(user_id: loginClass.id) { newUser in
+                            self.currentUser = newUser
+                            print("load instance closure running")
+                        }
                         
                         
                     }).listStyle(PlainListStyle())
+                    Button {
+                        signoutUser()
+                    } label: {
+                        Text("signout")
+                    }
+
                     if !loggedIn {
                     NavigationLink("Login", destination: LoginView(loginClass: loginClass))
                         .onChange(of: loginClass.isAuthenticated) { newValue in
-                            loggedIn = newValue
+                            self.loggedIn = newValue
+                        }.onChange(of: loginClass.id) { newValue in
+                            loadInstance.loadUser(user_id: newValue) { newUser in
+                                self.currentUser = newUser
+                            }
+                            
                         }
+                        //.onChange(of: loginClass.username) { newValue in
+//                            username = newValue
+//                        }
+                        
                     } else {
                         Button(action: { signoutUser() }, label: { Text("Logout") })
                     }
@@ -121,6 +143,53 @@ struct ContentView: View {
 class Load: ObservableObject {
     @Published var restaurants = [Restaurant]()
     @Published var waitTime: [Int: Float] = [:]
+    @Published var user: User?
+    
+    func loadUser(user_id: Int, completion:@escaping (User) -> ()) {
+        guard let url = URL(string: "http://127.0.0.1:8000/api/appuser/\(user_id)") else {
+            print("api is down")
+            return
+        }
+
+        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+        let token = String(data: data ?? Data.init(), encoding: .utf8)
+        
+        if token == nil {
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.addValue("Token \(String(describing: token))", forHTTPHeaderField: "Authorization")
+        //print("request created")
+        URLSession.shared.dataTask(with: request) {data, response, error in
+
+            if let data = data {
+                //print("waittime data \(String(describing: response))")
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                if let response = try? decoder.decode(User.self, from: data) {
+                    print("user response: \(response)")
+                    DispatchQueue.main.async {
+                        completion(response)
+                        print("completion run")
+                    }
+
+                } else {
+                    print("error: \(String(describing: error))")
+                    return
+
+                }
+
+                return
+            } else {
+                    print("response decoding failed")
+            }
+
+        }.resume()
+    }
     
     func loadWaitTime(restaurantID:Int, completion:@escaping (Float) -> ()) {
         

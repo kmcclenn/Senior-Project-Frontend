@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		F06299782808FA690064940C /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = F06299772808FA690064940C /* Auth0 */; };
 		F062997A28090A6D0064940C /* Auth0.plist in Resources */ = {isa = PBXBuildFile; fileRef = F062997928090A6D0064940C /* Auth0.plist */; };
+		F0BD23062825AEB30020F26B /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BD23052825AEB30020F26B /* UserView.swift */; };
+		F0BD23072825AEB30020F26B /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BD23052825AEB30020F26B /* UserView.swift */; };
 		F0C0111927EE2991002E82C8 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C0111827EE2991002E82C8 /* RestaurantView.swift */; };
 		F0C0111A27EE2991002E82C8 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C0111827EE2991002E82C8 /* RestaurantView.swift */; };
 		F0D24C622820817600CFC467 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D24C612820817600CFC467 /* LoginView.swift */; };
@@ -49,6 +51,7 @@
 /* Begin PBXFileReference section */
 		F06299752808F8B70064940C /* WaitTimes--iOS--Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "WaitTimes--iOS--Info.plist"; sourceTree = "<group>"; };
 		F062997928090A6D0064940C /* Auth0.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Auth0.plist; sourceTree = "<group>"; };
+		F0BD23052825AEB30020F26B /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
 		F0C0111827EE2991002E82C8 /* RestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantView.swift; sourceTree = "<group>"; };
 		F0D24C612820817600CFC467 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		F0D24C642820B69700CFC467 /* util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = util.swift; sourceTree = "<group>"; };
@@ -123,6 +126,7 @@
 				F0C0111827EE2991002E82C8 /* RestaurantView.swift */,
 				F0D24C612820817600CFC467 /* LoginView.swift */,
 				F0D24C642820B69700CFC467 /* util.swift */,
+				F0BD23052825AEB30020F26B /* UserView.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -335,6 +339,7 @@
 				F0D24C652820B69800CFC467 /* util.swift in Sources */,
 				F0D24C622820817600CFC467 /* LoginView.swift in Sources */,
 				F0C0111927EE2991002E82C8 /* RestaurantView.swift in Sources */,
+				F0BD23062825AEB30020F26B /* UserView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -348,6 +353,7 @@
 				F0D24C662820B69800CFC467 /* util.swift in Sources */,
 				F0D24C632820817600CFC467 /* LoginView.swift in Sources */,
 				F0C0111A27EE2991002E82C8 /* RestaurantView.swift in Sources */,
+				F0BD23072825AEB30020F26B /* UserView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

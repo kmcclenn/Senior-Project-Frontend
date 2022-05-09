@@ -43,14 +43,22 @@ struct WaitTime: Codable, Hashable, Identifiable {
     let waitList: String
 }
 
-struct InputWaitTime: Codable, Hashable, Identifiable {
-    let id: Int?
-    let restaurant: Restaurant
+struct InputWaitTime: Codable, Hashable {
+    let restaurant: Int //Restaurant
     let waitLength: Int?
-    let reportingUser: User
-    let accuracy: Float?
-    let pointValue: Int?
-    let postTime: String?
+    let reportingUser: Int //Int
     let arrivalTime: String?
     let seatedTime: String?
+}
+
+struct InputWaitTimeRead: Identifiable, Codable, Hashable {
+    let id: Int
+    let restaurant: Int
+    let waitLength: Int
+    let reportingUser: Int
+    let accuracy: Float
+    let pointValue: Int
+    let postTime: String
+    let arrivalTime: String
+    let seatedTime: String
 }

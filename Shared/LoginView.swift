@@ -34,13 +34,14 @@ struct LoginView : View {
                 loginClass.loginUser(username: username, password: password) { result in
                     print("result: \(result)")
                     switch result {
-                    case.success(let token):
-                        print("login success, token: \(token)")
+                    case.success(let tuple):
+                        print("login success, token: \(tuple.0)")
                         //UserDefaults.standard.setValue(token, forKey: "tokenName") - saving here is bad.
-                        let data = Data(token.utf8)
+                        let data = Data(tuple.0.utf8)
                         KeychainHelper.standard.save(data, service: "token", account: "user")
                         DispatchQueue.main.async {
                             loginClass.isAuthenticated = true
+                            loginClass.id = Int(tuple.1)
                             presentationMode.wrappedValue.dismiss()
                         }
                         
@@ -78,6 +79,7 @@ struct LoginView : View {
 final class Login: ObservableObject {
     @Published var isAuthenticated: Bool = false
     let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+    @Published var id: Int = -1
     
     init() {
         if data != nil {
@@ -92,7 +94,7 @@ final class Login: ObservableObject {
         case invalidCredentials
     }
     
-    func loginUser(username: String, password: String, completion: @escaping(Result < String, AuthenticationError > ) -> Void) {
+    func loginUser(username: String, password: String, completion: @escaping(Result < (String,Int), AuthenticationError > ) -> Void) {
         
         guard let url = URL(string: "http://127.0.0.1:8000/api/api-token-auth/") else {
             print("api is down")
@@ -111,7 +113,7 @@ final class Login: ObservableObject {
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("Basic a21jY2xlbm46ZGV4SVNkZXgzMTQ=", forHTTPHeaderField: "Authorization")// add access token here ?/ NEEDS FIXING
+        //request.addValue("Basic a21jY2xlbm46ZGV4SVNkZXgzMTQ=", forHTTPHeaderField: "Authorization")// add access token here ?/ NEEDS FIXING
         request.httpBody = encoded
         //print("request created")
         URLSession.shared.dataTask(with: request) {data, response, error in
@@ -121,7 +123,12 @@ final class Login: ObservableObject {
                     completion(.failure(.invalidCredentials))
                     return
                 }
-                completion(.success(token))
+                guard let id = Int(json["user_id"] ?? "") else {
+                    completion(.failure(.invalidCredentials))
+                    return
+                }
+                print(json)
+                completion(.success((token, id)))
 //                if let response = try? JSONDecoder().decode(User.self, from: data) {
 //                    print(response)
 //                    DispatchQueue.main.async {
