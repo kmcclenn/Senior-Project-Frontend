@@ -87,6 +87,7 @@ final class Login: ObservableObject {
     @Published var isAuthenticated: Bool = false
     let data = try? KeychainHelper.standard.read(service: "token", account: "user")
     let userId = try? KeychainHelper.standard.read(service: "id", account: "user")
+    
     @Published var id: Int = -1
     
     init() {

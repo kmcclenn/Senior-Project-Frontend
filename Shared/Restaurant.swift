@@ -18,10 +18,10 @@ struct Restaurant: Codable, Hashable, Identifiable {
 
 struct User: Codable, Hashable, Identifiable {
     let id: Int
-    let username: String
-    let firstName: String?
-    let lastName: String?
-    let email: String?
+    var username: String
+    var firstName: String?
+    var lastName: String?
+    var email: String?
 }
 
 struct Address: Codable, Hashable, Identifiable {
@@ -41,6 +41,11 @@ struct WaitTime: Codable, Hashable, Identifiable {
     let id: Int
     let averageWaittimeWithinPast30Minutes: Float
     let waitList: String
+}
+
+struct Credibility: Codable, Hashable, Identifiable {
+    let id: Int
+    let credibility: Float
 }
 
 struct InputWaitTime: Codable, Hashable {

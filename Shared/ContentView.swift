@@ -18,6 +18,7 @@ struct ContentView: View {
     @State var loggedIn: Bool = false
     @State var username: String = ""
     @State var token: String?
+    @State var credibility: Float = 1.0
     
     @State var currentUser: User?
     //@State var user: User?
@@ -108,7 +109,12 @@ struct ContentView: View {
                .toolbar {
                    ToolbarItemGroup(placement: .navigationBarTrailing) {
                        if loggedIn && currentUser != nil {
-                           NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!))
+                           NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
+                               .onAppear {
+                                   loadInstance.loadCredibility(user_id: currentUser!.id) { credibility in
+                                       self.credibility = credibility
+                                   }
+                               }
                        }
                        
                    }
@@ -138,6 +144,52 @@ class Load: ObservableObject {
     @Published var restaurants = [Restaurant]()
     @Published var waitTime: [Int: Float] = [:]
     @Published var user: User?
+    
+    func loadCredibility(user_id: Int, completion:@escaping (Float) -> ()) {
+        guard let url = URL(string: "http://127.0.0.1:8000/api/get_credibility/\(user_id)") else {
+            print("api is down")
+            return
+        }
+        
+        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+        let token = String(data: data ?? Data.init(), encoding: .utf8)
+        
+        if token == nil {
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.addValue("Token \(String(describing: token))", forHTTPHeaderField: "Authorization")
+        //print("request created")
+        URLSession.shared.dataTask(with: request) {data, response, error in
+            
+            if let data = data {
+                //print("waittime data \(String(describing: response))")
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                if let response = try? decoder.decode(Credibility.self, from: data) {
+                    //print("user response: \(response)")
+                    DispatchQueue.main.async {
+                        completion(response.credibility)
+                        print("completion run")
+                    }
+
+                } else {
+                    print("error: \(String(describing: error))")
+                    return
+
+                }
+
+                return
+            } else {
+                    print("response decoding failed")
+            }
+
+        }.resume()
+    }
     
     func loadUser(user_id: Int, completion:@escaping (User) -> ()) {
         guard let url = URL(string: "http://127.0.0.1:8000/api/appuser/\(user_id)") else {
