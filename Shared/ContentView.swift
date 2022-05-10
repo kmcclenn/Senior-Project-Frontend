@@ -78,7 +78,7 @@ struct ContentView: View {
                         loadInstance.loadUser(user_id: loginClass.id) { newUser in
                             self.currentUser = newUser
                             
-                            print("load instance closure running")
+                            //print("load instance closure running")
                         }
                         //self.loggedIn = loginClass.isAuthenticated
                         print("is logged in \(loggedIn)")
@@ -155,13 +155,13 @@ class Load: ObservableObject {
         let token = String(data: data ?? Data.init(), encoding: .utf8)
         
         if token == nil {
-            return
+            fatalError("Token is nil. Not signed in.")
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("Token \(String(describing: token))", forHTTPHeaderField: "Authorization")
+        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
         //print("request created")
         URLSession.shared.dataTask(with: request) {data, response, error in
             
@@ -171,21 +171,22 @@ class Load: ObservableObject {
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 
                 if let response = try? decoder.decode(Credibility.self, from: data) {
-                    //print("user response: \(response)")
+                    
                     DispatchQueue.main.async {
                         completion(response.credibility)
-                        print("completion run")
+                        //print("completion run")
                     }
 
                 } else {
-                    print("error: \(String(describing: error))")
+                    
+                    print("error in credibility: \(String(describing: error))")
                     return
 
                 }
 
                 return
             } else {
-                    print("response decoding failed")
+                    print("response decoding failed for credibility")
             }
 
         }.resume()
@@ -201,13 +202,13 @@ class Load: ObservableObject {
         let token = String(data: data ?? Data.init(), encoding: .utf8)
         
         if token == nil {
-            return
+            fatalError("Token is nil. Not signed in.")
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("Token \(String(describing: token))", forHTTPHeaderField: "Authorization")
+        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
         //print("request created")
         URLSession.shared.dataTask(with: request) {data, response, error in
 
@@ -224,14 +225,14 @@ class Load: ObservableObject {
                     }
 
                 } else {
-                    print("error: \(String(describing: error))")
+                    print("error in loaduser: \(String(describing: error))")
                     return
 
                 }
 
                 return
             } else {
-                    print("response decoding failed")
+                    print("response decoding failed for loaduser")
             }
 
         }.resume()
@@ -257,14 +258,14 @@ class Load: ObservableObject {
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 
                 if let response = try? decoder.decode(WaitTime.self, from: data) {
-                    print("waittime response: \(response)")
+                    //print("waittime response: \(response)")
                     DispatchQueue.main.async {
                         completion(response.averageWaittimeWithinPast30Minutes)
                         print("completion run")
                     }
                     
                 } else {
-                    print("error: \(String(describing: error))")
+                    print("error in load WT: \(String(describing: error))")
                     DispatchQueue.main.async {
                         completion(-1.0)
                     }
@@ -273,7 +274,7 @@ class Load: ObservableObject {
                     
                 return
             } else {
-                    print("response decoding failed")
+                    print("response decoding failed for WT")
             }
                 
         }.resume()
@@ -306,7 +307,7 @@ class Load: ObservableObject {
                     
                     return
             } else {
-                    print("response decoding failed")
+                    print("response decoding failed for Restaurant")
             }
                 
         }.resume()

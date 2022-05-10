@@ -16,17 +16,15 @@ struct UserView: View {
         NavigationView {
             VStack {
                 Text("Your profile.")
-                if (currentUser.firstName ?? nil != nil || currentUser.firstName ?? "" != "") && (currentUser.lastName ?? nil != nil || currentUser.lastName ?? "" != "") {
-                    Text("Hello, \(currentUser.firstName ?? "") \(currentUser.lastName ?? "")!").onAppear {
-                        print("firstlast \(currentUser.firstName!)")
-                    }
+                if (currentUser.firstName ?? nil != nil && currentUser.firstName ?? "" != "") && (currentUser.lastName ?? nil != nil && currentUser.lastName ?? "" != "") {
+                    Text("Hello, \(currentUser.firstName ?? "") \(currentUser.lastName ?? "")!")
                 } else {
                     Text("Hello, \(currentUser.username)!")
                 }
                 HStack {
                     Spacer()
                     Text("Credibility rating:")
-                    Text("\(round(credibility * 100))%")
+                    Text("\(Int(round(credibility * 100)))%")
                         .font(.title2)
                         .bold()
                     Spacer()
