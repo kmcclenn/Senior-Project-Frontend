@@ -88,7 +88,7 @@ struct ContentView: View {
                         
                     }).listStyle(PlainListStyle())
                     if loggedIn {
-                        NavigationLink("leaderboards", destination:LeaderboardView(points: self.leaderPoints))
+                        NavigationLink("View Leaderboards", destination:LeaderboardView(points: self.leaderPoints))
                             .onAppear {
                                 loadInstance.loadPoints() { points in
                                     self.leaderPoints = points
@@ -97,18 +97,18 @@ struct ContentView: View {
                             }
                     }
                     if !loggedIn {
-                    NavigationLink("Login", destination: LoginView(loginClass: loginClass))
-                        .onChange(of: loginClass.isAuthenticated) { newValue in
-                            self.loggedIn = newValue
-                        }.onChange(of: loginClass.id) { newValue in
-                            loadInstance.loadUser(user_id: newValue) { newUser in
-                                self.currentUser = newUser
-                            }
+                        
+                        NavigationLink("Login", destination: LoginView(loginClass: loginClass, logIn: true))
+                            .onChange(of: loginClass.isAuthenticated) { newValue in
+                                self.loggedIn = newValue
+                            }.onChange(of: loginClass.id) { newValue in
+                                loadInstance.loadUser(user_id: newValue) { newUser in
+                                    self.currentUser = newUser
+                                }
                             
                         }
-                        //.onChange(of: loginClass.username) { newValue in
-//                            username = newValue
-//                        }
+                        NavigationLink("Register", destination: LoginView(loginClass: loginClass, logIn: false))
+                            
                         
                     } else {
                         Button(action: { signoutUser() }, label: { Text("Logout") })
@@ -222,7 +222,7 @@ class Load: ObservableObject {
         URLSession.shared.dataTask(with: request) {data, response, error in
             
             if let data = data {
-                print("point data \(String(data: data, encoding: .utf8))")
+                print("point data \(String(describing: String(data: data, encoding: .utf8)))")
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 

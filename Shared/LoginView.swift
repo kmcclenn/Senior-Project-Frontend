@@ -14,12 +14,20 @@ struct LoginView : View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismiss
     @State private var showAlert = false
+    @State private var message: String = ""
+    @State private var alertTitle: String = ""
+    @State var logIn: Bool
     
     //let defaults = UserDefaults.standard
 
     //var function: () -> Void
     @State var username: String = ""
+    @State var email: String = ""
+    @State var firstName: String = ""
+    @State var lastName: String = ""
     @State var password: String = ""
+    @State var password2: String = ""
+    
 
     var body: some View {
         VStack {
@@ -27,47 +35,103 @@ struct LoginView : View {
                 .disableAutocorrection(true)
                 .autocapitalization(.none)
                 .textContentType(.username)
-            SecureField("Password", text: $password)
-                .textContentType(.password)
+            if !logIn {
+                TextField("Email", text: $email)
+                    .disableAutocorrection(true)
+                    .autocapitalization(.none)
+                    .textContentType(.username)
+                TextField("First Name", text: $firstName)
+                    .disableAutocorrection(true)
+                    .autocapitalization(.none)
+                    .textContentType(.username)
+                TextField("Last Name", text: $lastName)
+                    .disableAutocorrection(true)
+                    .autocapitalization(.none)
+                    .textContentType(.username)
+                SecureField("Password", text: $password)
+                    .textContentType(.newPassword)
+                SecureField("Password (Again)", text: $password2)
+                    .textContentType(.newPassword)
+
+            } else {
+                SecureField("Password", text: $password)
+                    .textContentType(.password)
+            }
             
             Button(action: {
-                loginClass.loginUser(username: username, password: password) { result in
-                    print("result: \(result)")
-                    switch result {
-                    case.success(let tuple):
-                        print("login success, token: \(tuple.1)")
-                        //UserDefaults.standard.setValue(token, forKey: "tokenName") - saving here is bad.
-                        let data = Data(tuple.0.utf8)
-                        let idData = Data(String(tuple.1).utf8)
-//                        guard let idData = try? JSONEncoder().encode(Data(id: tuple.1)) else {
-//                            print("fail")
-//                        }
-                        //let idData = Data("{")
-                        //print(String(data: idData, encoding: .utf8))
-                        KeychainHelper.standard.save(data, service: "token", account: "user")
-                        KeychainHelper.standard.save(idData, service: "id", account: "user")
-                        DispatchQueue.main.async {
-                            loginClass.isAuthenticated = true
-                            loginClass.id = Int(tuple.1)
-                            presentationMode.wrappedValue.dismiss()
+                if logIn {
+                    loginClass.loginUser(username: username, password: password) { result in
+                        print("result: \(result)")
+                        switch result {
+                        case.success(let tuple):
+                            print("login success, token: \(tuple.1)")
+                            let data = Data(tuple.0.utf8)
+                            let idData = Data(String(tuple.1).utf8)
+                            KeychainHelper.standard.save(data, service: "token", account: "user")
+                            KeychainHelper.standard.save(idData, service: "id", account: "user")
+                            DispatchQueue.main.async {
+                                loginClass.isAuthenticated = true
+                                loginClass.id = Int(tuple.1)
+                                alertTitle = "Success!"
+                                message = "Logged in successfully."
+                                self.showAlert = true
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                            
+                            print("is auth: \(loginClass.isAuthenticated)")
+                            
+                        case.failure(let error):
+                            switch error {
+                            case.invalidCredentials:
+                                message = "Please check username and password."
+                            case.custom(let errorMessage):
+                                message = errorMessage
+                            }
+                            print("failure error: \(error.localizedDescription)")
+                            alertTitle = "Error."
+                            self.showAlert = true
+                            
                         }
-                        
-                        print("is auth: \(loginClass.isAuthenticated)")
-                        
-                    case.failure(let error):
-                        //self.loginAlert = true
-                        print("failure error: \(error.localizedDescription)")
-                        self.showAlert = true
                     }
-      
-            
-            
+                } else {
+                    loginClass.registerUser(username: username, email: email, firstName: firstName, lastName: lastName, password: password, password2: password2) { result in
+                        print("result: \(result)")
+                        switch result {
+                        case.success(_):
+                            
+                            DispatchQueue.main.async {
+                                alertTitle = "Success!"
+                                message = "Registered successfully."
+                                self.showAlert = true
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                            
+                        case.failure(let error):
+                            switch error {
+                            case.custom(let errorMessage):
+                                message = errorMessage
+                            default:
+                                break
+                                
+                            }
+                            alertTitle = "Error."
+                            print("failure error: \(error.localizedDescription)")
+                            self.showAlert = true
+                            
+                        }
+                    }
                 }
                 
-            }, label: { Text("Login") })
+            }, label: {
+                if logIn {
+                    Text("Login")
+                } else {
+                    Text("Register")
+                }
+            })
             .alert(isPresented: $showAlert) {
-                 Alert(title: Text("Login Error"),
-                 message: Text("Please check username and password."),
+                 Alert(title: Text(alertTitle),
+                 message: Text(message),
                  dismissButton: .default(Text("Okay"))
               )
             }
@@ -116,13 +180,14 @@ final class Login: ObservableObject {
     
     func registerUser(username: String, email: String, firstName: String, lastName: String, password: String, password2: String, completion: @escaping(Result < String, AuthenticationError > ) -> Void) {
         
-        guard let url = URL(string: "http://127.0.0.1:8000/api/app_user/") else {
+        guard let url = URL(string: "http://127.0.0.1:8000/api/appuser/") else {
             print("api is down")
             return
         }
         
         if password != password2 {
             completion(.failure(.custom(errorMessage: "Passwords don't match. Fix and try again.")))
+            return
         }
         
         let userData = RegisterUser(username: username, email: email, firstName: firstName, lastName: lastName, password: password)
@@ -133,6 +198,7 @@ final class Login: ObservableObject {
             print("failed to encode")
             return
         }
+        //print("register data user: \(String(data: encoded, encoding: .utf8))")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -140,19 +206,30 @@ final class Login: ObservableObject {
         request.httpBody = encoded
         
         URLSession.shared.dataTask(with: request) {data, response, error in
-            //print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
+            print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
             if let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : String] {
-
+                
                 
 
                 print(json)
+                if (json["username"] == "A user with that username already exists.") {
+                    completion(.failure(.custom(errorMessage: "Username already exists. Change and try again.")))
+                    return
+                }
+                if json["email"] == "user with this email already exists." {
+                    completion(.failure(.custom(errorMessage: "Email already exists. Change and try again.")))
+                    return
+                } else if json["email"] == "Enter a valid email address." {
+                    completion(.failure(.custom(errorMessage: "Enter a valid email address.")))
+                    return
+                }
                 completion(.success("success"))
 //
                     
                 return
             } else {
-                completion(.failure(.invalidCredentials))
-                print("response decoding failed for user")
+                completion(.failure(.custom(errorMessage: "Something went wrong. Please try again.")))
+                print("response decoding failed for user with error: \(error)")
             }
                 
         }.resume()
@@ -215,8 +292,8 @@ final class Login: ObservableObject {
 }
 
 
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView(loginClass: Login())
-    }
-}
+//struct LoginView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        LoginView(loginClass: Login())
+//    }
+//}

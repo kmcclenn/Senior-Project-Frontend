@@ -49,7 +49,7 @@ struct RestaurantView: View {
                     if loggedIn {
                         Text("See below to input!")
                     } else {
-                        NavigationLink("Login to input!", destination: LoginView(loginClass: loginClass))
+                        NavigationLink("Login to input!", destination: LoginView(loginClass: loginClass, logIn: true))
                     }// have link to that.
                 } else {
                     Text("Waittime: \(Int(round(waitTime))) minutes.")
