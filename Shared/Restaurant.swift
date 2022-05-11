@@ -24,6 +24,11 @@ struct User: Codable, Hashable, Identifiable {
     var email: String?
 }
 
+struct Points: Codable, Hashable, Identifiable {
+    let id: Int
+    let points: Int
+}
+
 struct Address: Codable, Hashable, Identifiable {
     let id: Int
     let raw: String
@@ -70,4 +75,12 @@ struct InputWaitTimeRead: Identifiable, Codable, Hashable {
 
 struct idData: Identifiable, Codable, Hashable {
     let id: Int
+}
+
+struct RegisterUser: Codable, Hashable {
+    let username: String
+    let email: String
+    let firstName: String
+    let lastName: String
+    let password: String
 }

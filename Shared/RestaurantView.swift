@@ -32,6 +32,8 @@ struct RestaurantView: View {
     @State var arrivalTime: Date = Date()
     @State var seatedTime: Date = Date() // then use DateFormatter to convert to string - same as arrivalTime
     
+    @FocusState var inputFieldInFocus: Bool
+    
     var body: some View {
         NavigationView {
             
@@ -39,7 +41,7 @@ struct RestaurantView: View {
                 Spacer()
                 Text("\(restaurant.address)")
                     .onChange(of: inputTime) { newValue in
-                        print(newValue)
+                        print("input time: \(inputTime) and binding: \($inputTime)")
                     }
                 Spacer()
                 if (waitTime == -1.0) {
@@ -63,6 +65,7 @@ struct RestaurantView: View {
                             Toggle("Show Seated Time", isOn: $showSeated)
                             HStack {
                                 TextField("WaitTime", value: $inputTime, formatter: numberFormatter)
+                                    .focused($inputFieldInFocus)
                                 Text("minutes")
                                     .font(.headline)
                                     .bold()
@@ -77,7 +80,7 @@ struct RestaurantView: View {
                             
                                 
                         }
-                        
+                        //Text("input time: \(inputTime)")
                         Button {
                             print("inputTime: \(inputTime)")
                             var arrival: Date? = nil
@@ -92,16 +95,21 @@ struct RestaurantView: View {
                             updateInstance.updateRestaurant(inputTime: inputTime, arrivalTime: arrival, seatedTime: seated, restaurant: restaurant, currentUser: currentUser!) {result in
                                 switch result {
                                 case.success(_):
-                                    reload()
-                                    self.inputTime = 0
-                                    self.arrivalTime = Date()
-                                    self.seatedTime = Date()
+                                    inputFieldInFocus = false
+                                    DispatchQueue.main.async {
+                                        self.inputTime = 0
+                                        self.arrivalTime = Date()
+                                        self.seatedTime = Date()
+                                        reload()
+                                    }
+                                    
+                                    
                                     print("input success")
                                 case.failure(let error):
                                     print("failure error: \(error.localizedDescription)")
-                                    inputTime = 0
-                                    arrivalTime = Date()
-                                    seatedTime = Date()
+                                    //$inputTime.wrappedValue = 0
+                                    //$arrivalTime.wrappedValue = Date()
+                                    //$seatedTime.wrappedValue = Date()
                                     switch error {
                                     case.notSignedIn:
                                         message = "Sign in first."
@@ -114,7 +122,7 @@ struct RestaurantView: View {
                         } label: {
                             Text("Send in wait time!")
                         }
-
+                        Spacer()
                     }
                 }
             }.navigationTitle("\(restaurant.name)")
@@ -135,6 +143,8 @@ struct RestaurantView: View {
         Load().loadWaitTime(restaurantID: restaurant.id) { waitLength in
             waitTime = waitLength
         }
+        
+        
     }
 }
 
@@ -268,8 +278,6 @@ final class Update: ObservableObject {
     }
     
 }
-
-
 
 struct RestaurantView_Previews: PreviewProvider {
     static var previews: some View {

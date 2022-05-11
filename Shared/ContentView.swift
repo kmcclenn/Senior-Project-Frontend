@@ -19,6 +19,8 @@ struct ContentView: View {
     @State var username: String = ""
     @State var token: String?
     @State var credibility: Float = 1.0
+    @State var leaderPoints = [Points]()
+    
     
     @State var currentUser: User?
     //@State var user: User?
@@ -85,8 +87,15 @@ struct ContentView: View {
                         print("current user: \(String(describing: currentUser))")
                         
                     }).listStyle(PlainListStyle())
-                    
-
+                    if loggedIn {
+                        NavigationLink("leaderboards", destination:LeaderboardView(points: self.leaderPoints))
+                            .onAppear {
+                                loadInstance.loadPoints() { points in
+                                    self.leaderPoints = points
+                                    
+                                }
+                            }
+                    }
                     if !loggedIn {
                     NavigationLink("Login", destination: LoginView(loginClass: loginClass))
                         .onChange(of: loginClass.isAuthenticated) { newValue in
@@ -187,6 +196,53 @@ class Load: ObservableObject {
                 return
             } else {
                     print("response decoding failed for credibility")
+            }
+
+        }.resume()
+    }
+    
+    func loadPoints(completion:@escaping ([Points]) -> ()) {
+        guard let url = URL(string: "http://127.0.0.1:8000/api/user_points") else {
+            print("api is down")
+            return
+        }
+        
+        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+        let token = String(data: data ?? Data.init(), encoding: .utf8)
+        
+        if token == nil {
+            fatalError("Token is nil. Not signed in.")
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
+        //print("request created")
+        URLSession.shared.dataTask(with: request) {data, response, error in
+            
+            if let data = data {
+                print("point data \(String(data: data, encoding: .utf8))")
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                if let response = try? decoder.decode([Points].self, from: data) {
+                    
+                    DispatchQueue.main.async {
+                        completion(response)
+                        //print("completion run")
+                    }
+
+                } else {
+                    
+                    print("error in points: \(String(describing: error))")
+                    return
+
+                }
+
+                return
+            } else {
+                    print("response decoding failed for points")
             }
 
         }.resume()

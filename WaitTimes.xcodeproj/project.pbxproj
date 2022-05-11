@@ -11,6 +11,8 @@
 		F062997A28090A6D0064940C /* Auth0.plist in Resources */ = {isa = PBXBuildFile; fileRef = F062997928090A6D0064940C /* Auth0.plist */; };
 		F08D6FC1282A0E2C00B58377 /* EditUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08D6FC0282A0E2C00B58377 /* EditUserView.swift */; };
 		F08D6FC2282A0E2C00B58377 /* EditUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08D6FC0282A0E2C00B58377 /* EditUserView.swift */; };
+		F08D6FC4282B04EE00B58377 /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08D6FC3282B04EE00B58377 /* LeaderboardView.swift */; };
+		F08D6FC5282B04EE00B58377 /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08D6FC3282B04EE00B58377 /* LeaderboardView.swift */; };
 		F0BD23062825AEB30020F26B /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BD23052825AEB30020F26B /* UserView.swift */; };
 		F0BD23072825AEB30020F26B /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BD23052825AEB30020F26B /* UserView.swift */; };
 		F0C0111927EE2991002E82C8 /* RestaurantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C0111827EE2991002E82C8 /* RestaurantView.swift */; };
@@ -54,6 +56,7 @@
 		F06299752808F8B70064940C /* WaitTimes--iOS--Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "WaitTimes--iOS--Info.plist"; sourceTree = "<group>"; };
 		F062997928090A6D0064940C /* Auth0.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Auth0.plist; sourceTree = "<group>"; };
 		F08D6FC0282A0E2C00B58377 /* EditUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditUserView.swift; sourceTree = "<group>"; };
+		F08D6FC3282B04EE00B58377 /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
 		F0BD23052825AEB30020F26B /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
 		F0C0111827EE2991002E82C8 /* RestaurantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantView.swift; sourceTree = "<group>"; };
 		F0D24C612820817600CFC467 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -123,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				F0E0EFA727D85BCB00FA0DB1 /* WaitTimesApp.swift */,
+				F08D6FC3282B04EE00B58377 /* LeaderboardView.swift */,
 				F0E0EFA827D85BCB00FA0DB1 /* ContentView.swift */,
 				F08D6FC0282A0E2C00B58377 /* EditUserView.swift */,
 				F0E0EFE327D85C7500FA0DB1 /* Restaurant.swift */,
@@ -341,6 +345,7 @@
 				F0E0EFCF27D85BCE00FA0DB1 /* WaitTimesApp.swift in Sources */,
 				F0E0EFE427D85C7500FA0DB1 /* Restaurant.swift in Sources */,
 				F0D24C652820B69800CFC467 /* util.swift in Sources */,
+				F08D6FC4282B04EE00B58377 /* LeaderboardView.swift in Sources */,
 				F0D24C622820817600CFC467 /* LoginView.swift in Sources */,
 				F08D6FC1282A0E2C00B58377 /* EditUserView.swift in Sources */,
 				F0C0111927EE2991002E82C8 /* RestaurantView.swift in Sources */,
@@ -356,6 +361,7 @@
 				F0E0EFD027D85BCE00FA0DB1 /* WaitTimesApp.swift in Sources */,
 				F0E0EFE527D85C7500FA0DB1 /* Restaurant.swift in Sources */,
 				F0D24C662820B69800CFC467 /* util.swift in Sources */,
+				F08D6FC5282B04EE00B58377 /* LeaderboardView.swift in Sources */,
 				F0D24C632820817600CFC467 /* LoginView.swift in Sources */,
 				F08D6FC2282A0E2C00B58377 /* EditUserView.swift in Sources */,
 				F0C0111A27EE2991002E82C8 /* RestaurantView.swift in Sources */,

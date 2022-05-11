@@ -114,6 +114,51 @@ final class Login: ObservableObject {
         case invalidCredentials
     }
     
+    func registerUser(username: String, email: String, firstName: String, lastName: String, password: String, password2: String, completion: @escaping(Result < String, AuthenticationError > ) -> Void) {
+        
+        guard let url = URL(string: "http://127.0.0.1:8000/api/app_user/") else {
+            print("api is down")
+            return
+        }
+        
+        if password != password2 {
+            completion(.failure(.custom(errorMessage: "Passwords don't match. Fix and try again.")))
+        }
+        
+        let userData = RegisterUser(username: username, email: email, firstName: firstName, lastName: lastName, password: password)
+        
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        guard let encoded = try? encoder.encode(userData) else {
+            print("failed to encode")
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = encoded
+        
+        URLSession.shared.dataTask(with: request) {data, response, error in
+            //print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
+            if let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String : String] {
+
+                
+
+                print(json)
+                completion(.success("success"))
+//
+                    
+                return
+            } else {
+                completion(.failure(.invalidCredentials))
+                print("response decoding failed for user")
+            }
+                
+        }.resume()
+        
+    }
+    
     func loginUser(username: String, password: String, completion: @escaping(Result < (String,Int), AuthenticationError > ) -> Void) {
         
         guard let url = URL(string: "http://127.0.0.1:8000/api/api-token-auth/") else {
