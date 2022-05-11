@@ -21,6 +21,7 @@ struct ContentView: View {
     @State var credibility: Float = 1.0
     @State var leaderPoints = [Points]()
     
+    @State var showAdd = false
     
     @State var currentUser: User?
     //@State var user: User?
@@ -53,7 +54,7 @@ struct ContentView: View {
                         // then use token for any necessary api calls.
                     }
                     List(restaurants) { restaurant in
-                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil)) {
+                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil)) {
                             Text("\(restaurant.name)")
                         }
 //
@@ -68,8 +69,8 @@ struct ContentView: View {
                          loadInstance.loadRestaurant { (restaurants) in
                              self.restaurants = restaurants
                              for restaurant in self.restaurants {
-                                 loadInstance.loadWaitTime(restaurantID: restaurant.id) { waitLength in
-                                     self.waitTimes[restaurant.id] = waitLength
+                                 loadInstance.loadWaitTime(restaurantID: restaurant.id!) { waitLength in
+                                     self.waitTimes[restaurant.id!] = waitLength
                                  }
                              }
                          }
@@ -116,18 +117,30 @@ struct ContentView: View {
                 }
                .navigationTitle("Restaurants")
                .toolbar {
-                   ToolbarItemGroup(placement: .navigationBarTrailing) {
-                       if loggedIn && currentUser != nil {
-                           NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
-                               .onAppear {
-                                   loadInstance.loadCredibility(user_id: currentUser!.id) { credibility in
-                                       self.credibility = credibility
+                   
+                       ToolbarItemGroup(placement: .navigationBarTrailing) {
+                           if loggedIn && currentUser != nil {
+                               NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
+                                   .onAppear {
+                                       loadInstance.loadCredibility(user_id: currentUser!.id) { credibility in
+                                           self.credibility = credibility
+                                       }
                                    }
-                               }
+                           }
+                           
                        }
-                       
-                   }
-               }
+                       ToolbarItemGroup(placement: .navigationBarLeading) {
+                           if loggedIn && currentUser != nil {
+                               Button(action: {showAdd.toggle()}, label: {
+                                                Image(systemName: "plus.circle")
+                                                Text("Add Restaurant")
+                                           })
+                           }
+                       }
+                   
+               }.sheet(isPresented: $showAdd, content: {
+                   CreateRestaurantView(userWhoCreated: currentUser!.id)
+               })
                 
                 
             }

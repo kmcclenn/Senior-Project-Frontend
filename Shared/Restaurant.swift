@@ -8,7 +8,7 @@
 import Foundation
 
 struct Restaurant: Codable, Hashable, Identifiable {
-    let id: Int
+    let id: Int?
     let name: String
     let address: String
     let website: String?
@@ -29,7 +29,14 @@ struct Points: Codable, Hashable, Identifiable {
     let points: Int
 }
 
-struct Address: Codable, Hashable, Identifiable {
+struct Address: Codable, Hashable {
+    let raw: String
+    let city: String?
+    let state: String?
+    let zip: Int?
+}
+
+struct ReadAddress: Identifiable, Codable, Hashable {
     let id: Int
     let raw: String
     let streetNumber: Int?

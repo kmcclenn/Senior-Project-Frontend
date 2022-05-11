@@ -140,7 +140,7 @@ struct RestaurantView: View {
     }
     
     func reload() {
-        Load().loadWaitTime(restaurantID: restaurant.id) { waitLength in
+        Load().loadWaitTime(restaurantID: restaurant.id!) { waitLength in
             waitTime = waitLength
         }
         
@@ -182,7 +182,7 @@ final class Update: ObservableObject {
             return
         }
       
-        let restaurantData = InputWaitTime(restaurant: restaurant.id, waitLength: inputTime, reportingUser: currentUser.id, arrivalTime: arrivalTimeString, seatedTime: seatedTimeString)
+        let restaurantData = InputWaitTime(restaurant: restaurant.id!, waitLength: inputTime, reportingUser: currentUser.id, arrivalTime: arrivalTimeString, seatedTime: seatedTimeString)
         //print(restaurantData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase

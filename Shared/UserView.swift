@@ -50,8 +50,8 @@ struct UserView: View {
 
 
 
-struct UserView_Previews: PreviewProvider {
-    static var previews: some View {
-        UserView(currentUser: User(id: 1, username: "", firstName: "", lastName: "", email: ""), credibility: 1.0)
-    }
-}
+//struct UserView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        UserView(currentUser: User(id: 1, username: "", firstName: "", lastName: "", email: ""), credibility: 1.0)
+//    }
+//}
