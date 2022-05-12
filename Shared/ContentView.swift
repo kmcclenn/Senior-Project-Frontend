@@ -59,18 +59,21 @@ struct ContentView: View {
                         }
 //
                     }.refreshable {
-                        loadInstance.loadRestaurant { (restaurants) in
-                            self.restaurants = restaurants
+                        loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
+                            self.restaurants = restaurants as! [Restaurant]
                         }
                     }.onAppear(perform: {
                         print("is authenticated: \(loginClass.isAuthenticated)")
                         
                         //print("is logged in \(loggedIn)")
-                         loadInstance.loadRestaurant { (restaurants) in
-                             self.restaurants = restaurants
+                         loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
+                             self.restaurants = restaurants as! [Restaurant]
                              for restaurant in self.restaurants {
-                                 loadInstance.loadWaitTime(restaurantID: restaurant.id!) { waitLength in
-                                     self.waitTimes[restaurant.id!] = waitLength
+                                 loadInstance.load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
+                                     if waitLength as? String == "error" {
+                                         self.waitTimes[restaurant.id!] = -1.0
+                                     }
+                                     self.waitTimes[restaurant.id!] = (waitLength as? WaitTime).averageWaittimeWithinPast30Minutes
                                  }
                              }
                          }
@@ -78,8 +81,8 @@ struct ContentView: View {
                             self.loggedIn = true
                             
                         }
-                        loadInstance.loadUser(user_id: loginClass.id) { newUser in
-                            self.currentUser = newUser
+                        loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
+                            self.currentUser = newUser as? User
                             
                             //print("load instance closure running")
                         }
@@ -91,8 +94,8 @@ struct ContentView: View {
                     if loggedIn {
                         NavigationLink("View Leaderboards", destination:LeaderboardView(points: self.leaderPoints))
                             .onAppear {
-                                loadInstance.loadPoints() { points in
-                                    self.leaderPoints = points
+                                loadInstance.load(endpoint: "user_points", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
+                                    self.leaderPoints = points as! [Points]
                                     
                                 }
                             }
@@ -103,8 +106,8 @@ struct ContentView: View {
                             .onChange(of: loginClass.isAuthenticated) { newValue in
                                 self.loggedIn = newValue
                             }.onChange(of: loginClass.id) { newValue in
-                                loadInstance.loadUser(user_id: newValue) { newUser in
-                                    self.currentUser = newUser
+                                loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
+                                    self.currentUser = newUser as? User
                                 }
                             
                         }
@@ -122,8 +125,9 @@ struct ContentView: View {
                            if loggedIn && currentUser != nil {
                                NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
                                    .onAppear {
-                                       loadInstance.loadCredibility(user_id: currentUser!.id) { credibility in
-                                           self.credibility = credibility
+                                       loadInstance.load(endpoint: "get_credibility/\(currentUser!.id)", decodeType: Credibility.self, string: "credibility", tokenRequired: true)
+                                       loadCredibility(user_id: currentUser!.id) { credibility in
+                                           self.credibility = (credibility as! Credibility).credibility
                                        }
                                    }
                            }
@@ -166,6 +170,61 @@ class Load: ObservableObject {
     @Published var restaurants = [Restaurant]()
     @Published var waitTime: [Int: Float] = [:]
     @Published var user: User?
+    
+    func load<T: Decodable>(endpoint: String, decodeType: T.Type, string: String, tokenRequired: Bool, completion:@escaping (Any) -> ()) {
+        guard let url = URL(string: "http://127.0.0.1:8000/api/\(endpoint)") else {
+            print("api is down")
+            return
+        }
+        var token: String?
+        if tokenRequired {
+            let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+            token = String(data: data ?? Data.init(), encoding: .utf8)
+            
+            if token == nil {
+                fatalError("Token is nil. Not signed in.")
+            }
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        if tokenRequired {
+            request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
+        }
+        
+        
+        URLSession.shared.dataTask(with: request) {data, response, error in
+            
+            if let data = data {
+                //print("waittime data \(String(describing: response))")
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                if let response = try? decoder.decode(T.self, from: data) {
+                    
+                    DispatchQueue.main.async {
+                        
+                        
+                        completion(response)
+                        //print("completion run")
+                    }
+
+                } else {
+                    
+                    print("error in \(string): \(String(describing: error))")
+                    return
+
+                }
+
+                return
+            } else {
+                    print("response decoding failed for \(string)")
+            }
+
+        }.resume()
+        
+    }
     
     func loadCredibility(user_id: Int, completion:@escaping (Float) -> ()) {
         guard let url = URL(string: "http://127.0.0.1:8000/api/get_credibility/\(user_id)") else {
@@ -335,9 +394,9 @@ class Load: ObservableObject {
                     
                 } else {
                     print("error in load WT: \(String(describing: error))")
-                    DispatchQueue.main.async {
-                        completion(-1.0)
-                    }
+//                    DispatchQueue.main.async {
+//                        completion(-1.0)
+//                    }
                     
                 }
                     

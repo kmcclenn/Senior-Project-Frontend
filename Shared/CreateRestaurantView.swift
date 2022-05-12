@@ -255,6 +255,21 @@ class Post: ObservableObject {
             return
         }
         //print(phoneNumber)
+        var formattedWebsite: String
+        if website.starts(with: "www.") {
+            formattedWebsite = "https://\(website)"
+        } else if !website.starts(with: "https://www.") && yelpPage != "" {
+            formattedWebsite = "https://www.\(website)"
+        } else {
+            formattedWebsite = website
+        }
+        
+        var formattedYelp: String
+        if !yelpPage.starts(with: "https://www.") && yelpPage != "" {
+            formattedYelp = "https://www.\(yelpPage)"
+        } else {
+            formattedYelp = yelpPage
+        }
         
         var intPhoneNumber: Int?
         if phoneNumber == "" {
@@ -273,7 +288,7 @@ class Post: ObservableObject {
             }
         }
         
-        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: website, yelpPage: yelpPage, phoneNumber: intPhoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
+        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: formattedWebsite, yelpPage: formattedYelp, phoneNumber: intPhoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
         //print(restaurantData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
