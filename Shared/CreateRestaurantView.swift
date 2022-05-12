@@ -24,13 +24,13 @@ struct CreateRestaurantView: View {
     @State var street: String = ""
     @State var city: String = ""
     @State var state: String = ""
-    @State var zip: Int? = nil
-    
+    @State var zip: Int = 0
     @StateObject var postInstance = Post()
     
     @State private var numberFormatter: NumberFormatter = {
         var nf = NumberFormatter()
         nf.numberStyle = .none
+        nf.zeroSymbol = ""
         return nf
     }()
     
@@ -40,18 +40,29 @@ struct CreateRestaurantView: View {
                         Section{
                             Text("Restaurant will have to be approved by an Admin before you see it on the page. Will take up to 2-3 business days.")
                             TextField("Restaurant name", text: $name)
+                                .disableAutocorrection(true)
                             TextField("Website", text: $website)
+                                .disableAutocorrection(true)
+                                .autocapitalization(.none)
                             TextField("Yelp Page", text: $yelpPage)
+                                .disableAutocorrection(true)
+                                .autocapitalization(.none)
                             TextField("Phone Number", value: $phoneNumber, formatter: numberFormatter)
+                                .disableAutocorrection(true)
+                                .autocapitalization(.none)
                             //TextField("Restaurant name", text: $userWhoCreated)
                             TextField("Street name", text: $street)
+                                .disableAutocorrection(true)
                             TextField("City", text: $city)
+                                .disableAutocorrection(true)
                             Picker("State", selection: $state) {
                                 ForEach(stateChoices, id:\.self) {
                                     Text($0)
                                 }
                             }
-                            TextField("Zip Code", value: $zip, formatter: numberFormatter)
+                            TextField("Zip Code", value: $zip , formatter: numberFormatter)
+                                .disableAutocorrection(true)
+                                
                             
                         }
                     }.listStyle(GroupedListStyle())
@@ -142,6 +153,7 @@ class Post: ObservableObject {
         }
         if street == "" || city == "" || state == "" || zip == nil {
             completion(.failure(.custom(errorMessage:"Fields are required.")))
+            print("street: \(street), city: \(city), state: \(state), zip: \(zip)")
             return
         }
         if numberOfDigits(in: zip!) != 5 {
@@ -176,20 +188,22 @@ class Post: ObservableObject {
         request.httpBody = encoded
         
         URLSession.shared.dataTask(with: request) {data, response, error in
-            print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
+            //print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
             if let data = data {
                 print("data: \(String(decoding: data, as: UTF8.self))")
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
+               
                 if let json = try? decoder.decode(ReadAddress.self, from: data) {
+                    //print(json)
                     completion(.success(json))
                 } else {
                     completion(.failure(.custom(errorMessage: "Something went wrong. Try again.")))
-                    print("response decoding failed for user")
+                    print("response decoding failed for user for address")
                 }
             } else {
                 completion(.failure(.custom(errorMessage: "Something went wrong. Try again.")))
-                print("response decoding failed for user")
+                print("response decoding failed for user for address")
             }
                 
         }.resume()
@@ -213,7 +227,7 @@ class Post: ObservableObject {
             }
         }
       
-        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: website, yelpPage: yelpPage, phoneNumber: phoneNumber) // yelppage, phonenumber are optional
+        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: website, yelpPage: yelpPage, phoneNumber: phoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
         //print(restaurantData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -240,14 +254,14 @@ class Post: ObservableObject {
         request.httpBody = encoded
         
         URLSession.shared.dataTask(with: request) {data, response, error in
-            print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
+            print("data for rest before if: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
             if let data = data {
-                print("data: \(String(decoding: data, as: UTF8.self))")
+                print("data for rest: \(String(decoding: data, as: UTF8.self))")
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String : Any] {
                     print(json)
-                    if self.isEqual(type: String.self, a: json["name"] ?? "", b: "restaurant with this name already exists.") {
+                    if self.isEqual(type: String.self, a: json["name"].first ?? "", b: "restaurant with this name already exists.") {
                         completion(.failure(.custom(errorMessage: "Restaurant already exists.")))
                         return
                     }
@@ -255,22 +269,23 @@ class Post: ObservableObject {
                         completion(.failure(.custom(errorMessage: "Enter a valid website URL.")))
                         return
                     }
-                    if self.isEqual(type: String.self, a: json["yelpPage"] ?? "", b: "Enter a valid URL.") {
+                    if self.isEqual(type: String.self, a: json["yelpPage"].first ?? "", b: "Enter a valid URL.") {
                         completion(.failure(.custom(errorMessage: "Enter a valid website URL.")))
                         return
                     }
-                    if self.isEqual(type: String.self, a: json["phoneNumber"] ?? "", b: "Enter a valid value.") {
+                    if self.isEqual(type: String.self, a: json["phoneNumber"].first ?? "", b: "Enter a valid value.") {
                         completion(.failure(.custom(errorMessage: "Enter a valid value.")))
                         return
                     }
                     completion(.success("Success"))
                 } else {
                     completion(.failure(.custom(errorMessage: "Something went wrong. Try again.")))
-                    print("response decoding failed for user")
+                    print("response decoding failed for user for rest")
                 }
             } else {
+                print("error \(error)")
                 completion(.failure(.custom(errorMessage: "Something went wrong. Try again.")))
-                print("response decoding failed for user")
+                print("response decoding failed for user for rest")
             }
                 
         }.resume()

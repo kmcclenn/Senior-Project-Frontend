@@ -17,6 +17,7 @@ struct RestaurantView: View {
     @State private var numberFormatter: NumberFormatter = {
         var nf = NumberFormatter()
         nf.numberStyle = .none
+        nf.zeroSymbol = ""
         return nf
     }()
     
@@ -66,6 +67,9 @@ struct RestaurantView: View {
                             HStack {
                                 TextField("WaitTime", value: $inputTime, formatter: numberFormatter)
                                     .focused($inputFieldInFocus)
+                                    .onChange(of: inputTime) { newValue in
+                                        print(newValue)
+                                    }
                                 Text("minutes")
                                     .font(.headline)
                                     .bold()
@@ -279,8 +283,8 @@ final class Update: ObservableObject {
     
 }
 
-struct RestaurantView_Previews: PreviewProvider {
-    static var previews: some View {
-        RestaurantView(restaurant: Restaurant(id: 1, name: "test", address: "12234", website: "hhhh", yelpPage: "ssss", phoneNumber: 22344), waitTime: 0.0, loggedIn: false, loginClass: Login(), currentUser: User(id: 0, username: "", firstName: "", lastName: "", email: ""))
-    }
-}
+//struct RestaurantView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        RestaurantView(restaurant: Restaurant(id: 1, name: "test", address: "12234", website: "hhhh", yelpPage: "ssss", phoneNumber: 22344), waitTime: 0.0, loggedIn: false, loginClass: Login(), currentUser: User(id: 0, username: "", firstName: "", lastName: "", email: ""))
+//    }
+//}

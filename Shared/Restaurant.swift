@@ -14,6 +14,7 @@ struct Restaurant: Codable, Hashable, Identifiable {
     let website: String?
     let yelpPage: String?
     let phoneNumber: Int?
+    let userWhoCreated: Int?
 }
 
 struct User: Codable, Hashable, Identifiable {
@@ -39,7 +40,7 @@ struct Address: Codable, Hashable {
 struct ReadAddress: Identifiable, Codable, Hashable {
     let id: Int
     let raw: String
-    let streetNumber: Int?
+    let streetNumber: String?
     let route: String?
     let locality: String?
 }
