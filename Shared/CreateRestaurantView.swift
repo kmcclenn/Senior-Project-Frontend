@@ -14,23 +14,25 @@ struct CreateRestaurantView: View {
     @State var name: String = ""
     @State var website: String = ""
     @State var yelpPage: String = ""
-    @State var phoneNumber: Int? = nil
+    @State var phoneNumber: String = "" // only way to include blank space is to type 0
     @State var userWhoCreated: Int
     
     @State var message: String = ""
     @State private var showAlert = false
+    @State private var alertTitle = ""
     
     //Address stuff
     @State var street: String = ""
     @State var city: String = ""
     @State var state: String = ""
-    @State var zip: Int = 0
+    @State var zip: String = ""
     @StateObject var postInstance = Post()
     
     @State private var numberFormatter: NumberFormatter = {
         var nf = NumberFormatter()
         nf.numberStyle = .none
         nf.zeroSymbol = ""
+        
         return nf
     }()
     
@@ -38,30 +40,40 @@ struct CreateRestaurantView: View {
         NavigationView{
                     List{
                         Section{
-                            Text("Restaurant will have to be approved by an Admin before you see it on the page. Will take up to 2-3 business days.")
+                            Text("Restaurant will have to be approved by an Admin before you see it on the page. Will take up to 2-3 business days. Note: entering an invalid field may not include that field so be careful.")
                             TextField("Restaurant name", text: $name)
                                 .disableAutocorrection(true)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                             TextField("Website", text: $website)
                                 .disableAutocorrection(true)
                                 .autocapitalization(.none)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                             TextField("Yelp Page", text: $yelpPage)
                                 .disableAutocorrection(true)
                                 .autocapitalization(.none)
-                            TextField("Phone Number", value: $phoneNumber, formatter: numberFormatter)
-                                .disableAutocorrection(true)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            //Text("Entered: " + (phoneNumber != nil ? "\(phoneNumber!)" : ""))
+                            TextField("Phone Number", text: $phoneNumber)
+                                .onChange(of: phoneNumber) { newValue in
+                                    print(newValue)
+                                }.disableAutocorrection(true)
                                 .autocapitalization(.none)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                             //TextField("Restaurant name", text: $userWhoCreated)
                             TextField("Street name", text: $street)
                                 .disableAutocorrection(true)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                             TextField("City", text: $city)
                                 .disableAutocorrection(true)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                             Picker("State", selection: $state) {
                                 ForEach(stateChoices, id:\.self) {
                                     Text($0)
                                 }
                             }
-                            TextField("Zip Code", value: $zip , formatter: numberFormatter)
+                            TextField("Zip Code", text: $zip)
                                 .disableAutocorrection(true)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                                 
                             
                         }
@@ -70,14 +82,24 @@ struct CreateRestaurantView: View {
                     .toolbar(content: {
                         ToolbarItemGroup(placement: .navigationBarTrailing) {
                             Button {
-                                postInstance.postAddress(street: street, city: city, state: state, zip: zip ?? nil) { result in
+                                //let intZip: Int = (zip == nil ? 0 : zip)
+                                postInstance.postAddress(street: street, city: city, state: state, zip: zip) { result in
                                     switch result {
                                     case.success(let json):
                                         let address = json
-                                        postInstance.postRestaurant(name: name, address: address, website: website, yelpPage: yelpPage, userWhoCreated: userWhoCreated, phoneNumber: phoneNumber ?? nil) { result in
+                                        //let intPhoneNumber: Int = (phoneNumber == nil ? 0 : phoneNumber)
+                                        postInstance.postRestaurant(name: name, address: address, website: website, yelpPage: yelpPage, userWhoCreated: userWhoCreated, phoneNumber: phoneNumber) { result in
                                             switch result {
                                             case.success(_):
-                                                dismiss()
+                                                DispatchQueue.main.async {
+                                                    message = "Restaurant created successfully. Please wait 2-3 business days for it to be approved."
+                                                    alertTitle = "Success!"
+                                                    self.showAlert = true
+                                                    
+                                                }
+                                                
+                                               
+                                                
                                                 print("input success")
                                             case.failure(let error):
                                                 print("failure error: \(error.localizedDescription)")
@@ -87,6 +109,7 @@ struct CreateRestaurantView: View {
                                                 case.custom(let errorMessage):
                                                     message = errorMessage
                                                 }
+                                                self.alertTitle = "Error."
                                                 self.showAlert = true
                                             }
                                         }
@@ -98,6 +121,7 @@ struct CreateRestaurantView: View {
                                         case.custom(let errorMessage):
                                             message = errorMessage
                                         }
+                                        self.alertTitle = "Error."
                                         self.showAlert = true
                                     }
                                 }
@@ -113,9 +137,13 @@ struct CreateRestaurantView: View {
                             }
                         }
                     }).alert(isPresented: $showAlert) {
-                        Alert(title: Text("Error"),
+                        Alert(title: Text(alertTitle),
                         message: Text(message),
-                        dismissButton: .default(Text("Okay"))
+                        dismissButton: .default(Text("Okay"), action: {
+                            if alertTitle == "Success!" {
+                                dismiss()
+                            }
+                        })
                      )
                    }
         }
@@ -144,25 +172,31 @@ class Post: ObservableObject {
         return a == b
     }
     
-    func postAddress(street: String, city: String, state: String, zip: Int?, completion: @escaping(Result < ReadAddress, PostError > ) -> Void) {
+    func postAddress(street: String, city: String, state: String, zip: String, completion: @escaping(Result < ReadAddress, PostError > ) -> Void) {
         
         
         guard let url = URL(string: "http://127.0.0.1:8000/api/address/") else {
             print("api is down")
             return
         }
-        if street == "" || city == "" || state == "" || zip == nil {
+        if street == "" || city == "" || state == "" || zip == "" {
             completion(.failure(.custom(errorMessage:"Fields are required.")))
             print("street: \(street), city: \(city), state: \(state), zip: \(zip)")
             return
         }
-        if numberOfDigits(in: zip!) != 5 {
+        
+        var intZip: Int?
+        intZip = Int(zip)
+        if intZip == nil {
+            completion(.failure(.custom(errorMessage: "Please enter a valid zip code. Try again.")))
+            return
+        } else if numberOfDigits(in: intZip!) != 5 {
             completion(.failure(.custom(errorMessage: "Invalid Zip Code")))
             return
         }
-        let raw = "\(street), \(city), \(state) \(String(zip!)), USA"
+        let raw = "\(street), \(city), \(state) \(String(intZip!)), USA"
         
-        let addressData = Address(raw: raw, city: city, state: state, zip: zip)
+        let addressData = Address(raw: raw, city: city, state: state, zip: intZip!)
         //print(restaurantData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -209,7 +243,7 @@ class Post: ObservableObject {
         }.resume()
     }
     
-    func postRestaurant(name: String, address: ReadAddress, website: String, yelpPage: String, userWhoCreated: Int, phoneNumber: Int?, completion: @escaping(Result < String, PostError > ) -> Void) {
+    func postRestaurant(name: String, address: ReadAddress, website: String, yelpPage: String, userWhoCreated: Int, phoneNumber: String, completion: @escaping(Result < String, PostError > ) -> Void) {
         
         
         guard let url = URL(string: "http://127.0.0.1:8000/api/restaurant/") else {
@@ -220,14 +254,26 @@ class Post: ObservableObject {
             completion(.failure(.custom(errorMessage: "Name is required.")))
             return
         }
-        if phoneNumber != nil {
-            if numberOfDigits(in: phoneNumber!) != 10 {
-                completion(.failure(.custom(errorMessage: "Invalid Zip Code")))
+        //print(phoneNumber)
+        
+        var intPhoneNumber: Int?
+        if phoneNumber == "" {
+            intPhoneNumber = nil
+        } else {
+            intPhoneNumber = Int(phoneNumber)
+            if intPhoneNumber == nil {
+                completion(.failure(.custom(errorMessage: "Please enter a valid phone number. Try again.")))
+                return
+            } else if intPhoneNumber! < 0 {
+                completion(.failure(.custom(errorMessage: "Invalid Phone Number. Please enter a valid 10 digit phone number.")))
+                return
+            } else if numberOfDigits(in: intPhoneNumber!) != 10 {
+                completion(.failure(.custom(errorMessage: "Invalid Phone Number. Please enter a valid 10 digit phone number.")))
                 return
             }
         }
-      
-        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: website, yelpPage: yelpPage, phoneNumber: phoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
+        
+        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: website, yelpPage: yelpPage, phoneNumber: intPhoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
         //print(restaurantData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -259,31 +305,34 @@ class Post: ObservableObject {
                 print("data for rest: \(String(decoding: data, as: UTF8.self))")
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
-                if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String : Any] {
+                if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String : [String]] {
                     print(json)
-                    if self.isEqual(type: String.self, a: json["name"].first ?? "", b: "restaurant with this name already exists.") {
+                    if (json["name"] ?? [""]).first == "restaurant with this name already exists." {
                         completion(.failure(.custom(errorMessage: "Restaurant already exists.")))
                         return
                     }
-                    if self.isEqual(type: String.self, a: json["website"] ?? "", b: "Enter a valid URL.") {
+                    if (json["website"] ?? [""]).first == "Enter a valid URL." {
                         completion(.failure(.custom(errorMessage: "Enter a valid website URL.")))
                         return
                     }
-                    if self.isEqual(type: String.self, a: json["yelpPage"].first ?? "", b: "Enter a valid URL.") {
+                    if (json["yelpPage"] ?? [""]).first == "Enter a valid URL." {
                         completion(.failure(.custom(errorMessage: "Enter a valid website URL.")))
                         return
                     }
-                    if self.isEqual(type: String.self, a: json["phoneNumber"].first ?? "", b: "Enter a valid value.") {
+                    if (json["phoneNumber"] ?? [""]).first == "Enter a valid value." {
                         completion(.failure(.custom(errorMessage: "Enter a valid value.")))
                         return
                     }
+                    
+                } else if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String : Any] {
+                    print(json)
                     completion(.success("Success"))
                 } else {
                     completion(.failure(.custom(errorMessage: "Something went wrong. Try again.")))
                     print("response decoding failed for user for rest")
                 }
             } else {
-                print("error \(error)")
+                print("error \(String(describing: error))")
                 completion(.failure(.custom(errorMessage: "Something went wrong. Try again.")))
                 print("response decoding failed for user for rest")
             }

@@ -29,7 +29,7 @@ struct RestaurantView: View {
     @State var showArrival: Bool = false
     @State var showSeated: Bool = false
     
-    @State var inputTime: Int = 0
+    @State var inputTime: String = ""
     @State var arrivalTime: Date = Date()
     @State var seatedTime: Date = Date() // then use DateFormatter to convert to string - same as arrivalTime
     
@@ -65,7 +65,7 @@ struct RestaurantView: View {
                             Toggle("Show Arrival Time", isOn: $showArrival)
                             Toggle("Show Seated Time", isOn: $showSeated)
                             HStack {
-                                TextField("WaitTime", value: $inputTime, formatter: numberFormatter)
+                                TextField("WaitTime", text: $inputTime)
                                     .focused($inputFieldInFocus)
                                     .onChange(of: inputTime) { newValue in
                                         print(newValue)
@@ -76,10 +76,16 @@ struct RestaurantView: View {
                             }
                             
                             if showArrival {
-                                DatePicker("Arrival Time", selection: $arrivalTime, displayedComponents: [.date, .hourAndMinute])
+                                
+                                DatePicker("Arrival Time", selection: $arrivalTime, displayedComponents: [.date, .hourAndMinute]).onAppear {
+                                    inputFieldInFocus = false
+                                }
                             }
                             if showSeated {
-                                DatePicker("Seated Time", selection: $seatedTime, displayedComponents: [.date, .hourAndMinute])
+                                
+                                DatePicker("Seated Time", selection: $seatedTime, displayedComponents: [.date, .hourAndMinute]).onAppear {
+                                    inputFieldInFocus = false
+                                }
                             }
                             
                                 
@@ -101,7 +107,7 @@ struct RestaurantView: View {
                                 case.success(_):
                                     inputFieldInFocus = false
                                     DispatchQueue.main.async {
-                                        self.inputTime = 0
+                                        self.inputTime = ""
                                         self.arrivalTime = Date()
                                         self.seatedTime = Date()
                                         reload()
@@ -131,7 +137,7 @@ struct RestaurantView: View {
                 }
             }.navigationTitle("\(restaurant.name)")
                 .onAppear {
-                    print("waittime from restaurantview \(restaurant.id): \(waitTime)")
+                    print("waittime from restaurantview \(String(describing: restaurant.id)): \(waitTime)")
                 }
         }.alert(isPresented: $showAlert) {
             Alert(title: Text("Error"),
@@ -159,7 +165,7 @@ final class Update: ObservableObject {
         case notSignedIn
     }
     
-    func updateRestaurant(inputTime: Int?, arrivalTime: Date?, seatedTime: Date?, restaurant: Restaurant, currentUser: User, completion: @escaping(Result < String, InputError > ) -> Void) {
+    func updateRestaurant(inputTime: String, arrivalTime: Date?, seatedTime: Date?, restaurant: Restaurant, currentUser: User, completion: @escaping(Result < String, InputError > ) -> Void) {
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
@@ -171,12 +177,27 @@ final class Update: ObservableObject {
             arrivalTimeString = formatter.string(from: arrivalTime!)
         }
         
+        print("inputtime: \(inputTime)")
         
         if seatedTime != nil {
             seatedTimeString = formatter.string(from: seatedTime!)
         }
-
-        if (inputTime == nil && arrivalTime == nil && seatedTime == nil) {
+        
+        var intInputTime: Int?
+        if inputTime == "" {
+            intInputTime = nil
+        } else {
+            intInputTime = Int(inputTime)
+            if intInputTime == nil {
+                completion(.failure(.custom(errorMessage: "Please enter a valid number. Try again.")))
+                return
+            } else if intInputTime! < 0 {
+                completion(.failure(.custom(errorMessage: "Please enter a valid number. Try again.")))
+                return
+            }
+        }
+        
+        if (intInputTime == nil && arrivalTime == nil && seatedTime == nil) {
             completion(.failure(.custom(errorMessage: "You must input either a wait time or a seated time and arrival time. Try again.")))
             return
         }
@@ -186,7 +207,7 @@ final class Update: ObservableObject {
             return
         }
       
-        let restaurantData = InputWaitTime(restaurant: restaurant.id!, waitLength: inputTime, reportingUser: currentUser.id, arrivalTime: arrivalTimeString, seatedTime: seatedTimeString)
+        let restaurantData = InputWaitTime(restaurant: restaurant.id!, waitLength: intInputTime, reportingUser: currentUser.id, arrivalTime: arrivalTimeString, seatedTime: seatedTimeString)
         //print(restaurantData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase

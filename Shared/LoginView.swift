@@ -229,7 +229,7 @@ final class Login: ObservableObject {
                 return
             } else {
                 completion(.failure(.custom(errorMessage: "Something went wrong. Please try again.")))
-                print("response decoding failed for user with error: \(error)")
+                print("response decoding failed for user with error: \(String(describing: error))")
             }
                 
         }.resume()
