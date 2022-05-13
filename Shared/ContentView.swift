@@ -120,12 +120,20 @@ struct ContentView: View {
                         Button(action: { signoutUser() }, label: { Text("Logout") })
                     }
                 }
-               .navigationTitle("Restaurants")
+                .navigationTitle("Restaurants")
                .toolbar {
                    
                        ToolbarItemGroup(placement: .navigationBarTrailing) {
                            if loggedIn && currentUser != nil {
-                               NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
+                               NavigationLink {
+                                   UserView(currentUser: currentUser!, credibility: credibility)
+                               } label: {
+                                   Image("User-Icon")
+                                       .resizable()
+                                       .frame(width: 32.0, height: 32.0)
+                               }
+
+//                               NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
                                    
                            }
                            
@@ -142,6 +150,9 @@ struct ContentView: View {
                }.sheet(isPresented: $showAdd, content: {
                    CreateRestaurantView(userWhoCreated: currentUser!.id)
                })
+               .frame(maxWidth: .infinity, maxHeight: .infinity) // 1
+                .accentColor(Color.white)
+                .background(Color.init(uiColor: UIColor(red: 0.12, green: 0.22, blue: 0.45, alpha: 1.00)))
                 
                 
             }
