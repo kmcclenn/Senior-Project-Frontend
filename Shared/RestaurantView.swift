@@ -150,8 +150,13 @@ struct RestaurantView: View {
     }
     
     func reload() {
-        Load().loadWaitTime(restaurantID: restaurant.id!) { waitLength in
-            waitTime = waitLength
+        
+        Load().load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
+            if waitLength as? String == "error" {
+               waitTime = -1.0
+            } else {
+                waitTime = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
+            }
         }
         
         

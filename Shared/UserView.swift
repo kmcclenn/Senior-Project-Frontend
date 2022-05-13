@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UserView: View {
     @State var currentUser: User
-    @State var credibility: Float
+    @State var credibility: Float = 1.0
     @State var showEdit = false
     var body: some View {
         
@@ -30,6 +30,10 @@ struct UserView: View {
                     Spacer()
                 }
                 Spacer()
+            }.onAppear {
+                Load().load(endpoint: "get_credibility/\(currentUser.id)", decodeType: Credibility.self, string: "credibility", tokenRequired: true) { credibility in
+                    self.credibility = (credibility as! Credibility).credibility
+                }
             }
         }.navigationTitle(currentUser.username)
             .toolbar {

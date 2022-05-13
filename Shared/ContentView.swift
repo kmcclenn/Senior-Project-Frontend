@@ -72,13 +72,15 @@ struct ContentView: View {
                                  loadInstance.load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
                                      if waitLength as? String == "error" {
                                          self.waitTimes[restaurant.id!] = -1.0
+                                     } else {
+                                         self.waitTimes[restaurant.id!] = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
                                      }
-                                     self.waitTimes[restaurant.id!] = (waitLength as? WaitTime).averageWaittimeWithinPast30Minutes
                                  }
                              }
                          }
                         if loginClass.isAuthenticated {
                             self.loggedIn = true
+                            
                             
                         }
                         loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
@@ -124,12 +126,7 @@ struct ContentView: View {
                        ToolbarItemGroup(placement: .navigationBarTrailing) {
                            if loggedIn && currentUser != nil {
                                NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
-                                   .onAppear {
-                                       loadInstance.load(endpoint: "get_credibility/\(currentUser!.id)", decodeType: Credibility.self, string: "credibility", tokenRequired: true)
-                                       loadCredibility(user_id: currentUser!.id) { credibility in
-                                           self.credibility = (credibility as! Credibility).credibility
-                                       }
-                                   }
+                                   
                            }
                            
                        }
@@ -226,220 +223,7 @@ class Load: ObservableObject {
         
     }
     
-    func loadCredibility(user_id: Int, completion:@escaping (Float) -> ()) {
-        guard let url = URL(string: "http://127.0.0.1:8000/api/get_credibility/\(user_id)") else {
-            print("api is down")
-            return
-        }
-        
-        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
-        let token = String(data: data ?? Data.init(), encoding: .utf8)
-        
-        if token == nil {
-            fatalError("Token is nil. Not signed in.")
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
-        //print("request created")
-        URLSession.shared.dataTask(with: request) {data, response, error in
-            
-            if let data = data {
-                //print("waittime data \(String(describing: response))")
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                
-                if let response = try? decoder.decode(Credibility.self, from: data) {
-                    
-                    DispatchQueue.main.async {
-                        completion(response.credibility)
-                        //print("completion run")
-                    }
-
-                } else {
-                    
-                    print("error in credibility: \(String(describing: error))")
-                    return
-
-                }
-
-                return
-            } else {
-                    print("response decoding failed for credibility")
-            }
-
-        }.resume()
-    }
-    
-    func loadPoints(completion:@escaping ([Points]) -> ()) {
-        guard let url = URL(string: "http://127.0.0.1:8000/api/user_points") else {
-            print("api is down")
-            return
-        }
-        
-        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
-        let token = String(data: data ?? Data.init(), encoding: .utf8)
-        
-        if token == nil {
-            fatalError("Token is nil. Not signed in.")
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
-        //print("request created")
-        URLSession.shared.dataTask(with: request) {data, response, error in
-            
-            if let data = data {
-                print("point data \(String(describing: String(data: data, encoding: .utf8)))")
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                
-                if let response = try? decoder.decode([Points].self, from: data) {
-                    
-                    DispatchQueue.main.async {
-                        completion(response)
-                        //print("completion run")
-                    }
-
-                } else {
-                    
-                    print("error in points: \(String(describing: error))")
-                    return
-
-                }
-
-                return
-            } else {
-                    print("response decoding failed for points")
-            }
-
-        }.resume()
-    }
-    
-    func loadUser(user_id: Int, completion:@escaping (User) -> ()) {
-        guard let url = URL(string: "http://127.0.0.1:8000/api/appuser/\(user_id)") else {
-            print("api is down")
-            return
-        }
-
-        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
-        let token = String(data: data ?? Data.init(), encoding: .utf8)
-        
-        if token == nil {
-            fatalError("Token is nil. Not signed in.")
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
-        //print("request created")
-        URLSession.shared.dataTask(with: request) {data, response, error in
-
-            if let data = data {
-                //print("waittime data \(String(describing: response))")
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                
-                if let response = try? decoder.decode(User.self, from: data) {
-                    print("user response: \(response)")
-                    DispatchQueue.main.async {
-                        completion(response)
-                        print("completion run")
-                    }
-
-                } else {
-                    print("error in loaduser: \(String(describing: error))")
-                    return
-
-                }
-
-                return
-            } else {
-                    print("response decoding failed for loaduser")
-            }
-
-        }.resume()
-    }
-    
-    func loadWaitTime(restaurantID:Int, completion:@escaping (Float) -> ()) {
-        
-        guard let url = URL(string: "http://127.0.0.1:8000/api/average_time/\(restaurantID)") else {
-            print("api is down")
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        //request.addValue("Basic a21jY2xlbm46ZGV4SVNkZXgzMTQ=", forHTTPHeaderField: "Authorization")
-        //print("request created")
-        URLSession.shared.dataTask(with: request) {data, response, error in
-            
-            if let data = data {
-                //print("waittime data \(String(describing: response))")
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                
-                if let response = try? decoder.decode(WaitTime.self, from: data) {
-                    //print("waittime response: \(response)")
-                    DispatchQueue.main.async {
-                        completion(response.averageWaittimeWithinPast30Minutes)
-                        print("completion run")
-                    }
-                    
-                } else {
-                    print("error in load WT: \(String(describing: error))")
-//                    DispatchQueue.main.async {
-//                        completion(-1.0)
-//                    }
-                    
-                }
-                    
-                return
-            } else {
-                    print("response decoding failed for WT")
-            }
-                
-        }.resume()
-    }
-   
-    
-    func loadRestaurant(completion:@escaping ([Restaurant]) -> ()) {
-        //print("loaded started")
-        //print(self.restaurants)
-        guard let url = URL(string: "http://127.0.0.1:8000/api/restaurant/") else {
-            print("api is down")
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        //request.addValue("Basic a21jY2xlbm46ZGV4SVNkZXgzMTQ=", forHTTPHeaderField: "Authorization")
-        //print("request created")
-        URLSession.shared.dataTask(with: request) {data, response, error in
-            if let data = data {
 //
-                if let response = try? JSONDecoder().decode([Restaurant].self, from: data) {
-                    //print(response)
-                    DispatchQueue.main.async {
-                        completion(response)
-                
-                    }
-                }
-                    
-                    return
-            } else {
-                    print("response decoding failed for Restaurant")
-            }
-                
-        }.resume()
-    }
 }
 
 
@@ -454,3 +238,220 @@ struct ContentView_Previews: PreviewProvider {
          }
     }
 }
+
+
+// extra functions //
+//func loadCredibility(user_id: Int, completion:@escaping (Float) -> ()) {
+//        guard let url = URL(string: "http://127.0.0.1:8000/api/get_credibility/\(user_id)") else {
+//            print("api is down")
+//            return
+//        }
+//
+//        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+//        let token = String(data: data ?? Data.init(), encoding: .utf8)
+//
+//        if token == nil {
+//            fatalError("Token is nil. Not signed in.")
+//        }
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "GET"
+//        request.addValue("application/json", forHTTPHeaderField: "Accept")
+//        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
+//        //print("request created")
+//        URLSession.shared.dataTask(with: request) {data, response, error in
+//
+//            if let data = data {
+//                //print("waittime data \(String(describing: response))")
+//                let decoder = JSONDecoder()
+//                decoder.keyDecodingStrategy = .convertFromSnakeCase
+//
+//                if let response = try? decoder.decode(Credibility.self, from: data) {
+//
+//                    DispatchQueue.main.async {
+//                        completion(response.credibility)
+//                        //print("completion run")
+//                    }
+//
+//                } else {
+//
+//                    print("error in credibility: \(String(describing: error))")
+//                    return
+//
+//                }
+//
+//                return
+//            } else {
+//                    print("response decoding failed for credibility")
+//            }
+//
+//        }.resume()
+//    }
+//
+//    func loadPoints(completion:@escaping ([Points]) -> ()) {
+//        guard let url = URL(string: "http://127.0.0.1:8000/api/user_points") else {
+//            print("api is down")
+//            return
+//        }
+//
+//        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+//        let token = String(data: data ?? Data.init(), encoding: .utf8)
+//
+//        if token == nil {
+//            fatalError("Token is nil. Not signed in.")
+//        }
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "GET"
+//        request.addValue("application/json", forHTTPHeaderField: "Accept")
+//        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
+//        //print("request created")
+//        URLSession.shared.dataTask(with: request) {data, response, error in
+//
+//            if let data = data {
+//                print("point data \(String(describing: String(data: data, encoding: .utf8)))")
+//                let decoder = JSONDecoder()
+//                decoder.keyDecodingStrategy = .convertFromSnakeCase
+//
+//                if let response = try? decoder.decode([Points].self, from: data) {
+//
+//                    DispatchQueue.main.async {
+//                        completion(response)
+//                        //print("completion run")
+//                    }
+//
+//                } else {
+//
+//                    print("error in points: \(String(describing: error))")
+//                    return
+//
+//                }
+//
+//                return
+//            } else {
+//                    print("response decoding failed for points")
+//            }
+//
+//        }.resume()
+//    }
+//
+//    func loadUser(user_id: Int, completion:@escaping (User) -> ()) {
+//        guard let url = URL(string: "http://127.0.0.1:8000/api/appuser/\(user_id)") else {
+//            print("api is down")
+//            return
+//        }
+//
+//        let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+//        let token = String(data: data ?? Data.init(), encoding: .utf8)
+//
+//        if token == nil {
+//            fatalError("Token is nil. Not signed in.")
+//        }
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "GET"
+//        request.addValue("application/json", forHTTPHeaderField: "Accept")
+//        request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
+//        //print("request created")
+//        URLSession.shared.dataTask(with: request) {data, response, error in
+//
+//            if let data = data {
+//                //print("waittime data \(String(describing: response))")
+//                let decoder = JSONDecoder()
+//                decoder.keyDecodingStrategy = .convertFromSnakeCase
+//
+//                if let response = try? decoder.decode(User.self, from: data) {
+//                    print("user response: \(response)")
+//                    DispatchQueue.main.async {
+//                        completion(response)
+//                        print("completion run")
+//                    }
+//
+//                } else {
+//                    print("error in loaduser: \(String(describing: error))")
+//                    return
+//
+//                }
+//
+//                return
+//            } else {
+//                    print("response decoding failed for loaduser")
+//            }
+//
+//        }.resume()
+//    }
+//
+//    func loadWaitTime(restaurantID:Int, completion:@escaping (Float) -> ()) {
+//
+//        guard let url = URL(string: "http://127.0.0.1:8000/api/average_time/\(restaurantID)") else {
+//            print("api is down")
+//            return
+//        }
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "GET"
+//        request.addValue("application/json", forHTTPHeaderField: "Accept")
+//        //request.addValue("Basic a21jY2xlbm46ZGV4SVNkZXgzMTQ=", forHTTPHeaderField: "Authorization")
+//        //print("request created")
+//        URLSession.shared.dataTask(with: request) {data, response, error in
+//
+//            if let data = data {
+//                //print("waittime data \(String(describing: response))")
+//                let decoder = JSONDecoder()
+//                decoder.keyDecodingStrategy = .convertFromSnakeCase
+//
+//                if let response = try? decoder.decode(WaitTime.self, from: data) {
+//                    //print("waittime response: \(response)")
+//                    DispatchQueue.main.async {
+//                        completion(response.averageWaittimeWithinPast30Minutes)
+//                        print("completion run")
+//                    }
+//
+//                } else {
+//                    print("error in load WT: \(String(describing: error))")
+////                    DispatchQueue.main.async {
+////                        completion(-1.0)
+////                    }
+//
+//                }
+//
+//                return
+//            } else {
+//                    print("response decoding failed for WT")
+//            }
+//
+//        }.resume()
+//    }
+//
+//
+//    func loadRestaurant(completion:@escaping ([Restaurant]) -> ()) {
+//        //print("loaded started")
+//        //print(self.restaurants)
+//        guard let url = URL(string: "http://127.0.0.1:8000/api/restaurant/") else {
+//            print("api is down")
+//            return
+//        }
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "GET"
+//        request.addValue("application/json", forHTTPHeaderField: "Accept")
+//        //request.addValue("Basic a21jY2xlbm46ZGV4SVNkZXgzMTQ=", forHTTPHeaderField: "Authorization")
+//        //print("request created")
+//        URLSession.shared.dataTask(with: request) {data, response, error in
+//            if let data = data {
+////
+//                if let response = try? JSONDecoder().decode([Restaurant].self, from: data) {
+//                    //print(response)
+//                    DispatchQueue.main.async {
+//                        completion(response)
+//
+//                    }
+//                }
+//
+//                    return
+//            } else {
+//                    print("response decoding failed for Restaurant")
+//            }
+//
+//        }.resume()
+//    }

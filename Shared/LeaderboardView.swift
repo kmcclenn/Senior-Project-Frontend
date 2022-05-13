@@ -20,14 +20,19 @@ struct LeaderboardView: View {
                         Text("Total points: \(point.points)")
                         Text("User: \(self.usernames[point.id] ?? String(point.id))")
                     }.onAppear {
-                        Load().loadUser(user_id: point.id) { user in
-                            self.usernames[user.id] = user.username
+                        
+                        Load().load(endpoint: "appuser/\(point.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
+                            self.usernames[(newUser as! User).id] = (newUser as! User).username
                         }
+                            //print("load instance closure running")
                     }
+                    
                 }.refreshable {
-                    Load().loadPoints { (points) in
-                        self.points = points
+                    Load().load(endpoint: "user_points", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
+                        self.points = points as! [Points]
+                        
                     }
+                    
                 }.listStyle(PlainListStyle())
             }.navigationTitle("Leaderboard")
             
