@@ -30,34 +30,67 @@ struct LoginView : View {
     
 
     var body: some View {
+        ZStack {
+            Color(uiColor: backgroundColor).ignoresSafeArea()
         VStack {
+            VStack(alignment: .leading, spacing: 15) {
             TextField("Username", text: $username)
+                
                 .disableAutocorrection(true)
                 .autocapitalization(.none)
                 .textContentType(.username)
+                .padding([.leading, .trailing])
+                
+                .shadow(radius: 10.0, x: 5, y: 10)
+                
+                .textFieldStyle(RoundedBorderTextFieldStyle())
             if !logIn {
                 TextField("Email", text: $email)
                     .disableAutocorrection(true)
                     .autocapitalization(.none)
                     .textContentType(.username)
+                    .padding([.leading, .trailing])
+                    .cornerRadius(25.0)
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .background(Color(.white))
                 TextField("First Name", text: $firstName)
                     .disableAutocorrection(true)
                     .autocapitalization(.none)
                     .textContentType(.username)
+                    .padding([.leading, .trailing])
+                    
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 TextField("Last Name", text: $lastName)
                     .disableAutocorrection(true)
                     .autocapitalization(.none)
                     .textContentType(.username)
+                    .padding([.leading, .trailing])
+                    
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 SecureField("Password", text: $password)
                     .textContentType(.newPassword)
+                    .padding([.leading, .trailing])
+                    
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 SecureField("Password (Again)", text: $password2)
                     .textContentType(.newPassword)
+                    .padding([.leading, .trailing])
+                    
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
 
             } else {
                 SecureField("Password", text: $password)
                     .textContentType(.password)
+                    .padding([.leading, .trailing])
+                    
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
             }
-            
+            }.padding([.leading, .trailing], 50)
             Button(action: {
                 if logIn {
                     loginClass.loginUser(username: username, password: password) { result in
@@ -125,10 +158,24 @@ struct LoginView : View {
             }, label: {
                 if logIn {
                     Text("Login")
+                        .font(.headline)
+                        .foregroundColor(textColor)
+                        .padding()
+                        .frame(width: 200, height: 60)
+                        
+                        .cornerRadius(20.0)
+                        .shadow(radius: 10.0, x: 20, y: 10)
                 } else {
                     Text("Register")
+                        .font(.headline)
+                        .foregroundColor(textColor)
+                        .padding()
+                        .frame(width: 200, height: 60)
+                        
+                        .cornerRadius(20.0)
+                        .shadow(radius: 10.0, x: 20, y: 10)
                 }
-            })
+            }).background(.black).padding(.top, 50)//button end
             .alert(isPresented: $showAlert) {
                  Alert(title: Text(alertTitle),
                  message: Text(message),
@@ -136,6 +183,7 @@ struct LoginView : View {
               )
             }
         }
+        }.navigationTitle("WaitTimes")
     }
     
     
