@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+let backgroundColor = UIColor(red: 0.16, green: 0.42, blue: 0.71, alpha: 1.0)
+let textColor: Color = Color.white
 
 struct ContentView: View {
     @State var restaurants = [Restaurant]()
@@ -20,10 +22,17 @@ struct ContentView: View {
     @State var token: String?
     @State var credibility: Float = 1.0
     @State var leaderPoints = [Points]()
+    @State var toLeaderboard = false
     
     @State var showAdd = false
     
     @State var currentUser: User?
+    
+    init() {
+        Theme.navigationBarColors(background: backgroundColor, titleColor: UIColor(textColor))
+        
+    }
+    
     //@State var user: User?
     //@State var defaults = UserDefaults.standard
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
@@ -43,10 +52,14 @@ struct ContentView: View {
             
 //
             NavigationView {
+                ZStack {
+                    Color(uiColor: backgroundColor).ignoresSafeArea()
+                
                 VStack {
                     if loggedIn && currentUser != nil {
                         
                         Text("logged in: \(currentUser!.username)")
+                            .foregroundColor(textColor)
                             .onAppear(perform: {
                                 let data = try? KeychainHelper.standard.read(service: "token", account: "user")
                                 token = String(data: data ?? Data.init(), encoding: .utf8)
@@ -55,8 +68,10 @@ struct ContentView: View {
                     }
                     List(restaurants) { restaurant in
                         NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil)) {
-                            Text("\(restaurant.name)")
-                        }
+                            Label(title: { Text("\(restaurant.name)").foregroundColor(textColor) } , icon: { Image(systemName: "arrowtriangle.forward.fill") } )
+                        }.listRowBackground(Color.init(uiColor: backgroundColor))
+                        .listRowSeparatorTint(.white)
+                        
 //
                     }.refreshable {
                         loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
@@ -68,13 +83,39 @@ struct ContentView: View {
                         //print("is logged in \(loggedIn)")
                          loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
                              self.restaurants = restaurants as! [Restaurant]
+                             print("restaurants: \(self.restaurants.count)")
+                             
                              for restaurant in self.restaurants {
+                                 
                                  loadInstance.load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
+                                     print("load WT run")
                                      if waitLength as? String == "error" {
                                          self.waitTimes[restaurant.id!] = -1.0
                                      } else {
                                          self.waitTimes[restaurant.id!] = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
                                      }
+                                     
+                                 }
+                             }
+                             print("waittimes: \(self.waitTimes)")
+                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                 self.restaurants.sort {
+                                     let waitTime1 = self.waitTimes[$0.id!] ?? -1
+                                     let waitTime2 = self.waitTimes[$1.id!] ?? -1
+                                     print("wt1: \(waitTime1)")
+                                     if (waitTime1 >= 0 && waitTime2 < 0) {
+                                         return true
+                                     } else if (waitTime1 < 0 && waitTime2 >= 0) {
+                                         return false
+                                     } else if (waitTime1 >= 0 && waitTime2 >= 0) {
+                                         return waitTime1 < waitTime2
+                                     } else if (waitTime1 < 0 && waitTime2 < 0) {
+                                         return false
+                                     } else {
+                                         return false
+                                     }
+                                                    
+                                     
                                  }
                              }
                          }
@@ -128,9 +169,11 @@ struct ContentView: View {
                                NavigationLink {
                                    UserView(currentUser: currentUser!, credibility: credibility)
                                } label: {
-                                   Image("User-Icon")
+                                   Image(systemName: "person.fill")
                                        .resizable()
                                        .frame(width: 32.0, height: 32.0)
+                                       .foregroundColor(textColor)
+                                
                                }
 
 //                               NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
@@ -140,21 +183,61 @@ struct ContentView: View {
                        }
                        ToolbarItemGroup(placement: .navigationBarLeading) {
                            if loggedIn && currentUser != nil {
-                               Button(action: {showAdd.toggle()}, label: {
-                                                Image(systemName: "plus.circle")
-                                                Text("Add Restaurant")
-                                           })
+                               
+                               // add dropdown menu here.
+                               Menu {
+                                   Button(action: {showAdd.toggle()}, label: {
+                                       Label(title: { Text("Add Restaurant") },
+                                             icon: { Image(systemName: "plus.circle") }
+                                       )
+                                                    
+                                   })
+                                   Button {
+                                       self.toLeaderboard = true
+                                   } label: {
+                                       Label {
+                                           Text("View Leaderboards")
+                                       } icon: {
+                                           Image(systemName: "123.rectangle.fill")
+                                           
+                                       }
+
+                                   }
+                                   Button(action: { signoutUser() },
+                                          label: { Label(title: { Text("Logout") } , icon: { Image(systemName: "rectangle.portrait.and.arrow.right") } ) }
+                                   )
+                                  
+                                   
+                               } label: {
+                                   Image(systemName: "line.3.horizontal")
+                                       .resizable()
+                                       .frame(width: 32.0, height: 27.0)
+
+                               }.background(NavigationLink(destination: LeaderboardView(points: self.leaderPoints), isActive: $toLeaderboard) {
+                                   EmptyView()
+                               })
+                               .onAppear {
+                                   loadInstance.load(endpoint: "user_points", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
+                                       self.leaderPoints = points as! [Points]
+                               }
+
+                               
+//                               Button(action: {showAdd.toggle()}, label: {
+//                                                Image(systemName: "plus.circle")
+//                                                Text("Add Restaurant")
+//                                           })
                            }
+                       }
                        }
                    
                }.sheet(isPresented: $showAdd, content: {
                    CreateRestaurantView(userWhoCreated: currentUser!.id)
                })
                .frame(maxWidth: .infinity, maxHeight: .infinity) // 1
-                .accentColor(Color.white)
-                .background(Color.init(uiColor: UIColor(red: 0.12, green: 0.22, blue: 0.45, alpha: 1.00)))
+                .accentColor(textColor)
+                .background(Color.init(uiColor: backgroundColor))
                 
-                
+                }
             }
         
     }

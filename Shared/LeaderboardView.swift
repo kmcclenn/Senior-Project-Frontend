@@ -12,8 +12,7 @@ struct LeaderboardView: View {
     @State var usernames: [Int:String] = [:]
     
     var body: some View {
-        NavigationView {
-            
+                    
             VStack {
                 List(points) { point in
                     HStack {
@@ -35,9 +34,7 @@ struct LeaderboardView: View {
                     
                 }.listStyle(PlainListStyle())
             }.navigationTitle("Leaderboard")
-            
-            Spacer()
-        }.onAppear {
+            .onAppear {
                 print("points: \(points)")
             }
     }

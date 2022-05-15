@@ -12,8 +12,6 @@ struct UserView: View {
     @State var credibility: Float = 1.0
     @State var showEdit = false
     var body: some View {
-        
-        NavigationView {
             VStack {
                 Text("Your profile.")
                 if (currentUser.firstName ?? nil != nil && currentUser.firstName ?? "" != "") && (currentUser.lastName ?? nil != nil && currentUser.lastName ?? "" != "") {
@@ -35,7 +33,7 @@ struct UserView: View {
                     self.credibility = (credibility as! Credibility).credibility
                 }
             }
-        }.navigationTitle(currentUser.username)
+        .navigationTitle(currentUser.username)
             .toolbar {
                 Button {
                     showEdit.toggle()

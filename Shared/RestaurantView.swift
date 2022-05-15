@@ -36,10 +36,10 @@ struct RestaurantView: View {
     @FocusState var inputFieldInFocus: Bool
     
     var body: some View {
-        NavigationView {
+        
             
             VStack {
-                Spacer()
+                
                 Text("\(restaurant.address)")
                     .onChange(of: inputTime) { newValue in
                         print("input time: \(inputTime) and binding: \($inputTime)")
@@ -58,7 +58,7 @@ struct RestaurantView: View {
                 
                 Spacer()
                 if loggedIn {
-                    VStack {
+                    
                         Text("Report your own wait time here:") // add a constraint that must be int - if not alert
                         
                         Form {
@@ -133,18 +133,18 @@ struct RestaurantView: View {
                             Text("Send in wait time!")
                         }
                         Spacer()
-                    }
+                    
                 }
-            }.navigationTitle("\(restaurant.name)")
-                .onAppear {
+            }.onAppear {
                     print("waittime from restaurantview \(String(describing: restaurant.id)): \(waitTime)")
-                }
-        }.alert(isPresented: $showAlert) {
+            }
+        .navigationTitle("\(restaurant.name)")
+        .alert(isPresented: $showAlert) {
             Alert(title: Text("Error"),
             message: Text(message),
             dismissButton: .default(Text("Okay"))
          )
-       }
+        }
         
         
     }
