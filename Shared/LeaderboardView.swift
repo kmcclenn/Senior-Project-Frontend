@@ -12,15 +12,44 @@ struct LeaderboardView: View {
     @State var usernames: [Int:String] = [:]
     
     var body: some View {
-                    
+        ZStack {
+            Color(uiColor: backgroundColor).ignoresSafeArea()
+        
             VStack {
-                List(points) { point in
+                
+                List() {
+                    ForEach(points.indices) {i in
                     HStack {
-                        Text("Total points: \(point.points)")
-                        Text("User: \(self.usernames[point.id] ?? String(point.id))")
-                    }.onAppear {
+                        Spacer()
+                        if i + 1 <= 50 {
+                            Image(systemName: "\(i+1).square.fill")
+                                .resizable()
+                                .frame(width: 28.0, height: 28.0)
+                                .foregroundColor(textColor)
+                                .padding()
+                        } else {
+                            Text("\(i+1).").bold().foregroundColor(textColor)
+                        }
                         
-                        Load().load(endpoint: "appuser/\(point.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
+                        
+                        Spacer()
+                        Text("\(self.usernames[points[i].id] ?? String(points[i].id))")
+                            .foregroundColor(textColor)
+                            .bold()
+                            .font(.headline)
+                        Spacer()
+                        Text("\(points[i].points) pts.")
+                            .foregroundColor(textColor)
+                            .bold()
+                            .font(.headline)
+                        Spacer()
+                        
+                        
+                    }.listRowBackground(Color.init(uiColor: backgroundColor))
+                    .listRowSeparatorTint(.white)
+                    .onAppear {
+                        
+                        Load().load(endpoint: "appuser/\(points[i].id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
                             self.usernames[(newUser as! User).id] = (newUser as! User).username
                         }
                             //print("load instance closure running")
@@ -31,12 +60,13 @@ struct LeaderboardView: View {
                         self.points = points as! [Points]
                         
                     }
-                    
+                }
                 }.listStyle(PlainListStyle())
             }.navigationTitle("Leaderboard")
             .onAppear {
                 print("points: \(points)")
             }
+        }
     }
 }
 

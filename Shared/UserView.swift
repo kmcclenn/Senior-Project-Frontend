@@ -12,21 +12,108 @@ struct UserView: View {
     @State var credibility: Float = 1.0
     @State var showEdit = false
     var body: some View {
+        ZStack {
+            Color(uiColor: backgroundColor).ignoresSafeArea()
+        
             VStack {
-                Text("Your profile.")
+                
                 if (currentUser.firstName ?? nil != nil && currentUser.firstName ?? "" != "") && (currentUser.lastName ?? nil != nil && currentUser.lastName ?? "" != "") {
                     Text("Hello, \(currentUser.firstName ?? "") \(currentUser.lastName ?? "")!")
+                        .font(.system(size: 32.0))
+                        .foregroundColor(textColor)
                 } else {
                     Text("Hello, \(currentUser.username)!")
+                        .font(.system(size: 32.0))
+                        .foregroundColor(textColor)
+                        .bold()
+                        .italic()
                 }
+                
+                
                 HStack {
                     Spacer()
-                    Text("Credibility rating:")
-                    Text("\(Int(round(credibility * 100)))%")
-                        .font(.title2)
-                        .bold()
+                    Text("Profile Details")
+                        .padding()
+                        
+                        
+                        .foregroundColor(textColor)
+                        .font(.title)
+                        .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.white, lineWidth: 5)
+                                )
                     Spacer()
                 }
+                HStack {
+                    Text("Username:")
+                        .foregroundColor(textColor)
+                        .padding([.leading, .trailing, .top])
+                        .font(.system(size: 18.0))
+                
+                    Text("\(currentUser.username)")
+                        .padding([.leading, .trailing])
+                        .foregroundColor(.black)
+                        .font(.system(size: 18.0))
+                        .background(.white)
+                        .cornerRadius(15)
+                        .padding([.top])
+                    Spacer()
+                }
+               
+                if (currentUser.email ?? nil != nil && currentUser.email ?? "" != "") {
+                    
+                    HStack {
+                        Text("Email:")
+                            .foregroundColor(textColor)
+                            .padding([.leading, .trailing, .top])
+                            .font(.system(size: 18.0))
+                    
+                        Text("\(currentUser.email!)")
+                            .padding([.leading, .trailing])
+                            .foregroundColor(.black)
+                            .font(.system(size: 18.0))
+                            .background(.white)
+                            .cornerRadius(15)
+                            .padding([.top])
+                        Spacer()
+                    }
+                }
+                if (currentUser.firstName ?? nil != nil && currentUser.firstName ?? "" != "") && (currentUser.lastName ?? nil != nil && currentUser.lastName ?? "" != "") {
+                    HStack {
+                        Text("Full Name:")
+                            .foregroundColor(textColor)
+                            .padding([.leading, .trailing, .top])
+                            .font(.system(size: 18.0))
+                    
+                        Text("\(currentUser.firstName ?? "") \(currentUser.lastName ?? "")")
+                            .padding([.leading, .trailing])
+                            .foregroundColor(.black)
+                            .font(.system(size: 18.0))
+                            .background(.white)
+                            .cornerRadius(15)
+                            .padding([.top])
+                        Spacer()
+                    }
+                }
+                HStack {
+                
+                    Text("Credibility rating:")
+                        .foregroundColor(textColor)
+                        .padding([.leading, .trailing, .top])
+                        .font(.system(size: 18.0))
+                    
+                    
+                    Text("\(Int(round(credibility * 100)))%")
+                        .padding([.leading, .trailing])
+                        .foregroundColor(.black)
+                        .font(.system(size: 18.0))
+                        .background(.white)
+                        .cornerRadius(15)
+                        .padding([.top])
+                
+                    Spacer()
+                }
+                
                 Spacer()
             }.onAppear {
                 Load().load(endpoint: "get_credibility/\(currentUser.id)", decodeType: Credibility.self, string: "credibility", tokenRequired: true) { credibility in
@@ -46,7 +133,7 @@ struct UserView: View {
 
 
             }
-        
+        }
     }
 }
 

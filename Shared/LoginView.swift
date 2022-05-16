@@ -183,7 +183,7 @@ struct LoginView : View {
               )
             }
         }
-        }.navigationTitle("WaitTimes")
+        }.navigationTitle("Waitless")
     }
     
     

@@ -13,7 +13,7 @@ struct Restaurant: Codable, Hashable, Identifiable {
     let address: String
     let website: String?
     let yelpPage: String?
-    let phoneNumber: Int?
+    let phoneNumber: String?
     let userWhoCreated: Int?
 }
 

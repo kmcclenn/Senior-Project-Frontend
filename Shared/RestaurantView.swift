@@ -42,19 +42,30 @@ struct RestaurantView: View {
         ZStack {
             Color(uiColor: backgroundColor).ignoresSafeArea()
             VStack {
-                HStack {
-                    Text("Address: \(restaurant.address)")
-                        .foregroundColor(textColor)
-                        .onChange(of: inputTime) { newValue in
-                            print("input time: \(inputTime) and binding: \($inputTime)")
-                        }.onAppear {
-                            print(restaurant.phoneNumber!)
-                        }
-                }
+//                HStack {
+//                    Text("Address").bold()
+//                    Text("addy")
+//                        .foregroundColor(textColor)
+//                        .onChange(of: inputTime) { newValue in
+//                            print("input time: \(inputTime) and binding: \($inputTime)")
+//                        }
+//                }
                 
                 HStack {
-                    if restaurant.phoneNumber != nil {
-                        Link(destination: URL(string: "tel:\(String(describing: restaurant.phoneNumber))")!, label: {
+                    Link(destination: URL(string: "https://www.google.com/maps/search/?api=1&query=\(restaurant.address.replacingOccurrences(of: " ", with: "+").replacingOccurrences(of: ",", with: "%2C"))")!, label: {
+                        Label {
+                            Text("Directions").foregroundColor(textColor)
+                        } icon: {
+                            Image(systemName: "arrow.uturn.right.circle.fill")
+                                .resizable()
+                                .frame(width: 28.0, height: 28.0)
+                                .foregroundColor(textColor)
+                                .padding(.top, 15)
+                        }.labelStyle(VerticalLabelStyle())
+
+                    })
+                    if restaurant.phoneNumber != nil && restaurant.phoneNumber != "" {
+                        Link(destination: URL(string: "tel:\(restaurant.phoneNumber!)")!, label: {
                             Label {
                                 Text("Call").foregroundColor(textColor)
                             } icon: {
@@ -62,12 +73,13 @@ struct RestaurantView: View {
                                     .resizable()
                                     .frame(width: 28.0, height: 28.0)
                                     .foregroundColor(textColor)
+                                    .padding(.top, 15)
                             }.labelStyle(VerticalLabelStyle())
 
                         })
                     
                     }
-                    if restaurant.website != nil {
+                    if restaurant.website != nil && restaurant.website != "" {
                          Link(destination: URL(string: "\(String(describing: restaurant.website!))")!, label: {
                              Label {
                                  Text("Website").foregroundColor(textColor)
@@ -76,13 +88,14 @@ struct RestaurantView: View {
                                      .resizable()
                                      .frame(width: 28.0, height: 28.0)
                                      .foregroundColor(textColor)
+                                     .padding(.top, 15)
                              }.labelStyle(VerticalLabelStyle())
 
                          })
                      
                      }
-                    if restaurant.yelpPage != nil {
-                        Link(destination: URL(string: "\(String(describing: restaurant.yelpPage!))")!, label: {
+                    if restaurant.yelpPage != nil && restaurant.yelpPage != "" {
+                        Link(destination: URL(string: "\(restaurant.yelpPage!)")!, label: {
                             
                             Label {
                                 Text("Yelp Page").foregroundColor(textColor)
@@ -91,6 +104,7 @@ struct RestaurantView: View {
                                     .resizable()
                                     .frame(width: 28.0, height: 28.0)
                                     .foregroundColor(textColor)
+                                    .padding(.top, 15)
                             }.labelStyle(VerticalLabelStyle())
 
                         })
@@ -103,7 +117,7 @@ struct RestaurantView: View {
                     if loggedIn {
                         Text("See below to input!").foregroundColor(textColor)
                     } else {
-                        NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: { Text("Log in to input.").foregroundColor(textColor) } )
+                        NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: { Text("Log in to input.").foregroundColor(textColor).bold().underline() } )
                     }// have link to that.
                 } else {
                     HStack {
@@ -206,6 +220,14 @@ struct RestaurantView: View {
                     
                 }
             }.onAppear {
+                if loginClass.isAuthenticated {
+                    loggedIn = true
+                    Load().load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
+                        self.currentUser = newUser as? User
+                        
+                        //print("load instance closure running")
+                    }
+                }
                     print("waittime from restaurantview \(String(describing: restaurant.id)): \(waitTime)")
             }
         .navigationTitle("\(restaurant.name)")
@@ -228,6 +250,7 @@ struct RestaurantView: View {
                 waitTime = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
             }
         }
+        
         
         
     }

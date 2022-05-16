@@ -37,20 +37,38 @@ struct CreateRestaurantView: View {
     }()
     
     var body: some View {
-        NavigationView{
+        NavigationView {
+            ZStack {
+                Color(uiColor: backgroundColor).ignoresSafeArea()
+                VStack {
+                    Text("Restaurant will have to be approved by an Admin before you see it on the page. Will take up to 2-3 business days.").foregroundColor(textColor)
+                
                     List{
-                        Section{
-                            Text("Restaurant will have to be approved by an Admin before you see it on the page. Will take up to 2-3 business days. Note: entering an invalid field may not include that field so be careful.")
+                       
+                            
+                            
                             TextField("Restaurant name", text: $name)
                                 .disableAutocorrection(true)
+                                .padding([.leading, .trailing])
+                                .listRowBackground(Color.init(uiColor: backgroundColor))
+                                .listRowSeparator(.hidden)
+                                .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             TextField("Website", text: $website)
                                 .disableAutocorrection(true)
                                 .autocapitalization(.none)
+                                .padding([.leading, .trailing])
+                                .listRowBackground(Color.init(uiColor: backgroundColor))
+                                .listRowSeparator(.hidden)
+                                .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             TextField("Yelp Page", text: $yelpPage)
                                 .disableAutocorrection(true)
                                 .autocapitalization(.none)
+                                .padding([.leading, .trailing])
+                                .listRowBackground(Color.init(uiColor: backgroundColor))
+                                .listRowSeparator(.hidden)
+                                .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             //Text("Entered: " + (phoneNumber != nil ? "\(phoneNumber!)" : ""))
                             TextField("Phone Number", text: $phoneNumber)
@@ -58,27 +76,55 @@ struct CreateRestaurantView: View {
                                     print(newValue)
                                 }.disableAutocorrection(true)
                                 .autocapitalization(.none)
+                                .padding([.leading, .trailing])
+                                .listRowBackground(Color.init(uiColor: backgroundColor))
+                                .listRowSeparator(.hidden)
+                                .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             //TextField("Restaurant name", text: $userWhoCreated)
                             TextField("Street name", text: $street)
                                 .disableAutocorrection(true)
+                                .padding([.leading, .trailing])
+                                .listRowBackground(Color.init(uiColor: backgroundColor))
+                                .listRowSeparator(.hidden)
+                                .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             TextField("City", text: $city)
                                 .disableAutocorrection(true)
+                                .padding([.leading, .trailing])
+                                .listRowBackground(Color.init(uiColor: backgroundColor))
+                                .listRowSeparator(.hidden)
+                                .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                            Picker("State", selection: $state) {
-                                ForEach(stateChoices, id:\.self) {
-                                    Text($0)
-                                }
-                            }
+                        
                             TextField("Zip Code", text: $zip)
                                 .disableAutocorrection(true)
+                                .padding([.leading, .trailing])
+                                .listRowBackground(Color.init(uiColor: backgroundColor))
+                                .listRowSeparator(.hidden)
+                                .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                            Picker(selection: $state) {
+                                ForEach(stateChoices, id:\.self) {
+                                    Text($0).foregroundColor(textColor).listRowBackground(Color.init(uiColor: backgroundColor))
+                                }
+                            } label: {
+                                Text("Choose State").foregroundColor(textColor)
+                            }.listRowBackground(Color.init(uiColor: backgroundColor))
+                            .listRowSeparatorTint(.white)
                                 
-                            
-                        }
-                    }.listStyle(GroupedListStyle())
-                    .navigationBarTitle("Add Restaurant")
+                    }.onAppear { // ADD THESE
+                        UITableView.appearance().backgroundColor = .clear
+                      }
+                      .onDisappear {
+                        UITableView.appearance().backgroundColor = .systemGroupedBackground
+                      }
+                    .listStyle(GroupedListStyle())
+                        
+                }.navigationBarTitle("Add Restaurant")
+                
+                    
+                    
                     .toolbar(content: {
                         ToolbarItemGroup(placement: .navigationBarTrailing) {
                             Button {
@@ -145,7 +191,11 @@ struct CreateRestaurantView: View {
                             }
                         })
                      )
-                   }
+                   }.frame(maxWidth: .infinity, maxHeight: .infinity) // 1
+                    .accentColor(textColor)
+                    .background(Color.init(uiColor: backgroundColor))
+            }
+            
         }
     }
 }
@@ -287,8 +337,9 @@ class Post: ObservableObject {
                 return
             }
         }
+        let newPhoneNumber: String? = intPhoneNumber == nil ? nil : String(intPhoneNumber!)
         
-        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: formattedWebsite, yelpPage: formattedYelp, phoneNumber: intPhoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
+        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: formattedWebsite, yelpPage: formattedYelp, phoneNumber: newPhoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
         //print(restaurantData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase

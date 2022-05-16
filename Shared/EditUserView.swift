@@ -24,14 +24,49 @@ struct EditUserView: View {
     
     var body: some View {
         NavigationView {
+            ZStack {
+                Color(uiColor: backgroundColor).ignoresSafeArea()
+                
+                
             List {
-                
+
                 TextField("Username", text: $user.username)
+                    .disableAutocorrection(true)
+                    .padding([.leading, .trailing])
+                    .listRowBackground(Color.init(uiColor: backgroundColor))
+                    .listRowSeparatorTint(.white)
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 TextField("First Name", text: $user.firstName ?? "")
+                    .disableAutocorrection(true)
+                    .padding([.leading, .trailing])
+                    .listRowBackground(Color.init(uiColor: backgroundColor))
+                    .listRowSeparatorTint(.white)
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 TextField("Last Name", text: $user.lastName ?? "")
+                    .disableAutocorrection(true)
+                    .padding([.leading, .trailing])
+                    .listRowBackground(Color.init(uiColor: backgroundColor))
+                    .listRowSeparatorTint(.white)
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 TextField("Email Address", text: $user.email ?? "")
-                
-            }.listStyle(GroupedListStyle())
+                    .disableAutocorrection(true)
+                    .padding([.leading, .trailing])
+                    .listRowBackground(Color.init(uiColor: backgroundColor))
+                    .listRowSeparatorTint(.white)
+                    .shadow(radius: 10.0, x: 5, y: 10)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+
+            }.onAppear { // ADD THESE
+                UITableView.appearance().backgroundColor = .clear
+              }
+              .onDisappear {
+                UITableView.appearance().backgroundColor = .systemGroupedBackground
+              }
+            .listStyle(GroupedListStyle())
+                }
             .navigationTitle(Text("Edit User"))
             .toolbar(content: {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -71,9 +106,12 @@ struct EditUserView: View {
                 message: Text(message),
                 dismissButton: .default(Text("Okay"))
              )
-           }
+           
+            }
             
-    }
+            
+        }
+    
     }
     
 }

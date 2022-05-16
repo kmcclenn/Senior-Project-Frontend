@@ -56,16 +56,15 @@ struct ContentView: View {
                     Color(uiColor: backgroundColor).ignoresSafeArea()
                 
                 VStack {
-                    if loggedIn && currentUser != nil {
-                        
-                        Text("logged in: \(currentUser!.username)")
+                    HStack {
+                        Spacer()
+                        Text("View restaurants (top has shortest wait time).")
                             .foregroundColor(textColor)
-                            .onAppear(perform: {
-                                let data = try? KeychainHelper.standard.read(service: "token", account: "user")
-                                token = String(data: data ?? Data.init(), encoding: .utf8)
-                            })
-                        // then use token for any necessary api calls.
+                            .font(.headline)
+                        Spacer()
                     }
+                        // then use token for any necessary api calls.
+                    
                     List(restaurants) { restaurant in
                         NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil)) {
                             Label(title: { Text("\(restaurant.name)").foregroundColor(textColor) } , icon: { Image(systemName: "arrowtriangle.forward.fill") } )
@@ -134,15 +133,15 @@ struct ContentView: View {
                         print("current user: \(String(describing: currentUser))")
                         
                     }).listStyle(PlainListStyle())
-                    if loggedIn {
-                        NavigationLink("View Leaderboards", destination:LeaderboardView(points: self.leaderPoints))
-                            .onAppear {
-                                loadInstance.load(endpoint: "user_points", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
-                                    self.leaderPoints = points as! [Points]
-                                    
-                                }
-                            }
-                    }
+//                    if loggedIn {
+//                        NavigationLink("View Leaderboards", destination:LeaderboardView(points: self.leaderPoints))
+//                            .onAppear {
+//                                loadInstance.load(endpoint: "user_points", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
+//                                    self.leaderPoints = points as! [Points]
+//
+//                                }
+//                            }
+//                    }
                     if !loggedIn {
                         HStack {
                             Spacer()
@@ -161,12 +160,9 @@ struct ContentView: View {
                                 
                             Spacer()
                             }
-                        } else {
-                            Button(action: { signoutUser() }, label: { Text("Logout") })
                         }
-                    
                 }
-                .navigationTitle("Restaurants")
+                .navigationTitle("Waitless")
                .toolbar {
                    
                        ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -179,9 +175,10 @@ struct ContentView: View {
                                        .frame(width: 32.0, height: 32.0)
                                        .foregroundColor(textColor)
                                 
-                               }
-
-//                               NavigationLink("View Profile of \(currentUser!.username)", destination: UserView(currentUser: currentUser!, credibility: credibility))
+                               }.onAppear(perform: {
+                                   let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+                                   token = String(data: data ?? Data.init(), encoding: .utf8)
+                               })
                                    
                            }
                            
@@ -225,12 +222,6 @@ struct ContentView: View {
                                    loadInstance.load(endpoint: "user_points", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
                                        self.leaderPoints = points as! [Points]
                                }
-
-                               
-//                               Button(action: {showAdd.toggle()}, label: {
-//                                                Image(systemName: "plus.circle")
-//                                                Text("Add Restaurant")
-//                                           })
                            }
                        }
                        }
@@ -238,9 +229,9 @@ struct ContentView: View {
                }.sheet(isPresented: $showAdd, content: {
                    CreateRestaurantView(userWhoCreated: currentUser!.id)
                })
-               .frame(maxWidth: .infinity, maxHeight: .infinity) // 1
-                .accentColor(textColor)
-                .background(Color.init(uiColor: backgroundColor))
+//               .frame(maxWidth: .infinity, maxHeight: .infinity) // 1
+               .accentColor(textColor)
+//                .background(Color.init(uiColor: backgroundColor))
                 
                 }
             }
@@ -293,7 +284,7 @@ class Load: ObservableObject {
         URLSession.shared.dataTask(with: request) {data, response, error in
             
             if let data = data {
-                //print("waittime data \(String(describing: response))")
+                //print("\(string) data \(String(describing: response))")
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 
