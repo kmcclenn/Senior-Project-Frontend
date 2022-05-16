@@ -50,9 +50,9 @@ struct LoginView : View {
                     .autocapitalization(.none)
                     .textContentType(.username)
                     .padding([.leading, .trailing])
-                    .cornerRadius(25.0)
+                    
                     .shadow(radius: 10.0, x: 5, y: 10)
-                    .background(Color(.white))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                 TextField("First Name", text: $firstName)
                     .disableAutocorrection(true)
                     .autocapitalization(.none)
@@ -163,7 +163,7 @@ struct LoginView : View {
                         .padding()
                         .frame(width: 200, height: 60)
                         
-                        .cornerRadius(20.0)
+                        
                         .shadow(radius: 10.0, x: 20, y: 10)
                 } else {
                     Text("Register")
@@ -172,10 +172,10 @@ struct LoginView : View {
                         .padding()
                         .frame(width: 200, height: 60)
                         
-                        .cornerRadius(20.0)
+                        
                         .shadow(radius: 10.0, x: 20, y: 10)
                 }
-            }).background(.black).padding(.top, 50)//button end
+            }).background(.black).cornerRadius(20.0).padding(.top, 50)//button end
             .alert(isPresented: $showAlert) {
                  Alert(title: Text(alertTitle),
                  message: Text(message),

@@ -35,31 +35,89 @@ struct RestaurantView: View {
     
     @FocusState var inputFieldInFocus: Bool
     
+    
+    
     var body: some View {
         
-            
+        ZStack {
+            Color(uiColor: backgroundColor).ignoresSafeArea()
             VStack {
+                HStack {
+                    Text("Address: \(restaurant.address)")
+                        .foregroundColor(textColor)
+                        .onChange(of: inputTime) { newValue in
+                            print("input time: \(inputTime) and binding: \($inputTime)")
+                        }.onAppear {
+                            print(restaurant.phoneNumber!)
+                        }
+                }
                 
-                Text("\(restaurant.address)")
-                    .onChange(of: inputTime) { newValue in
-                        print("input time: \(inputTime) and binding: \($inputTime)")
+                HStack {
+                    if restaurant.phoneNumber != nil {
+                        Link(destination: URL(string: "tel:\(String(describing: restaurant.phoneNumber))")!, label: {
+                            Label {
+                                Text("Call").foregroundColor(textColor)
+                            } icon: {
+                                Image(systemName: "phone.circle.fill")
+                                    .resizable()
+                                    .frame(width: 28.0, height: 28.0)
+                                    .foregroundColor(textColor)
+                            }.labelStyle(VerticalLabelStyle())
+
+                        })
+                    
                     }
+                    if restaurant.website != nil {
+                         Link(destination: URL(string: "\(String(describing: restaurant.website!))")!, label: {
+                             Label {
+                                 Text("Website").foregroundColor(textColor)
+                             } icon: {
+                                 Image(systemName: "globe")
+                                     .resizable()
+                                     .frame(width: 28.0, height: 28.0)
+                                     .foregroundColor(textColor)
+                             }.labelStyle(VerticalLabelStyle())
+
+                         })
+                     
+                     }
+                    if restaurant.yelpPage != nil {
+                        Link(destination: URL(string: "\(String(describing: restaurant.yelpPage!))")!, label: {
+                            
+                            Label {
+                                Text("Yelp Page").foregroundColor(textColor)
+                            } icon: {
+                                Image(systemName: "star.circle.fill")
+                                    .resizable()
+                                    .frame(width: 28.0, height: 28.0)
+                                    .foregroundColor(textColor)
+                            }.labelStyle(VerticalLabelStyle())
+
+                        })
+                    
+                    }
+                }
                 Spacer()
                 if (waitTime == -1.0) {
-                    Text("No user inputs yet. Be the first!")
+                    Text("No user inputs yet. Be the first!").foregroundColor(textColor)
                     if loggedIn {
-                        Text("See below to input!")
+                        Text("See below to input!").foregroundColor(textColor)
                     } else {
-                        NavigationLink("Login to input!", destination: LoginView(loginClass: loginClass, logIn: true))
+                        NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: { Text("Log in to input.").foregroundColor(textColor) } )
                     }// have link to that.
                 } else {
-                    Text("Waittime: \(Int(round(waitTime))) minutes.")
+                    HStack {
+                        Spacer()
+                        Text("\(Int(round(waitTime)))").font(.largeTitle).bold().foregroundColor(textColor)
+                        Text("minute long wait time.").foregroundColor(textColor)
+                        Spacer()
+                    }
                 }
                 
                 Spacer()
                 if loggedIn {
                     
-                        Text("Report your own wait time here:") // add a constraint that must be int - if not alert
+                        Text("Report your own wait time here:").foregroundColor(textColor) // add a constraint that must be int - if not alert
                         
                         Form {
                             Toggle("Show Arrival Time", isOn: $showArrival)
@@ -73,6 +131,7 @@ struct RestaurantView: View {
                                 Text("minutes")
                                     .font(.headline)
                                     .bold()
+                                    
                             }
                             
                             if showArrival {
@@ -89,6 +148,12 @@ struct RestaurantView: View {
                             }
                             
                                 
+                        }.background(Color.init(uiColor: backgroundColor))
+                        .onAppear { // ADD THESE
+                          UITableView.appearance().backgroundColor = .clear
+                        }
+                        .onDisappear {
+                          UITableView.appearance().backgroundColor = .systemGroupedBackground
                         }
                         //Text("input time: \(inputTime)")
                         Button {
@@ -131,7 +196,12 @@ struct RestaurantView: View {
                             }
                         } label: {
                             Text("Send in wait time!")
-                        }
+                                .font(.headline)
+                                .foregroundColor(textColor)
+                                .padding()
+                                .frame(width: 200, height: 60)
+                                .shadow(radius: 10.0, x: 20, y: 10)
+                        }.background(.black).cornerRadius(20.0).padding(.top, 50)
                         Spacer()
                     
                 }
@@ -145,7 +215,7 @@ struct RestaurantView: View {
             dismissButton: .default(Text("Okay"))
          )
         }
-        
+        }
         
     }
     
@@ -162,6 +232,8 @@ struct RestaurantView: View {
         
     }
 }
+
+
 
 final class Update: ObservableObject {
     

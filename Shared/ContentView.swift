@@ -98,7 +98,7 @@ struct ContentView: View {
                                  }
                              }
                              print("waittimes: \(self.waitTimes)")
-                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                  self.restaurants.sort {
                                      let waitTime1 = self.waitTimes[$0.id!] ?? -1
                                      let waitTime2 = self.waitTimes[$1.id!] ?? -1
@@ -144,22 +144,27 @@ struct ContentView: View {
                             }
                     }
                     if !loggedIn {
-                        
-                        NavigationLink("Login", destination: LoginView(loginClass: loginClass, logIn: true))
-                            .onChange(of: loginClass.isAuthenticated) { newValue in
-                                self.loggedIn = newValue
-                            }.onChange(of: loginClass.id) { newValue in
-                                loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
-                                    self.currentUser = newUser as? User
-                                }
-                            
+                        HStack {
+                            Spacer()
+                            NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: { Text("Login").foregroundColor(textColor).font(.headline).bold() } )
+                                .onChange(of: loginClass.isAuthenticated) { newValue in
+                                    self.loggedIn = newValue
+                                }.onChange(of: loginClass.id) { newValue in
+                                    loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
+                                        self.currentUser = newUser as? User
+                                    }
+                                
+                                }.buttonStyle(PlainButtonStyle())
+                            Spacer()
+                            NavigationLink(destination: LoginView(loginClass: loginClass, logIn: false), label: { Text("Register").foregroundColor(textColor).font(.headline).bold() } )
+                                .buttonStyle(PlainButtonStyle())
+                                
+                            Spacer()
+                            }
+                        } else {
+                            Button(action: { signoutUser() }, label: { Text("Logout") })
                         }
-                        NavigationLink("Register", destination: LoginView(loginClass: loginClass, logIn: false))
-                            
-                        
-                    } else {
-                        Button(action: { signoutUser() }, label: { Text("Logout") })
-                    }
+                    
                 }
                 .navigationTitle("Restaurants")
                .toolbar {
