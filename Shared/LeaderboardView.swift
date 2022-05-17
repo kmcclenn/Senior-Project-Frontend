@@ -21,14 +21,32 @@ struct LeaderboardView: View {
                     ForEach(points.indices) {i in
                     HStack {
                         Spacer()
-                        if i + 1 <= 50 {
+                        if i == 0 {
+                            Image("gold-medal")
+                                .resizable()
+                                .frame(width: 24.0, height: 36.0)
+                                .foregroundColor(textColor)
+                                .padding()
+                        } else if i == 1 {
+                            Image("silver-medal")
+                                .resizable()
+                                .frame(width: 24.0, height: 36.0)
+                                .foregroundColor(textColor)
+                                .padding()
+                        } else if i == 2 {
+                            Image("bronze-medal")
+                                .resizable()
+                                .frame(width: 24.0, height: 36.0)
+                                .foregroundColor(textColor)
+                                .padding()
+                        } else if i <= 49 {
                             Image(systemName: "\(i+1).square.fill")
                                 .resizable()
                                 .frame(width: 28.0, height: 28.0)
                                 .foregroundColor(textColor)
                                 .padding()
                         } else {
-                            Text("\(i+1).").bold().foregroundColor(textColor)
+                            Text("\(i+1).").bold().foregroundColor(textColor).padding()
                         }
                         
                         
