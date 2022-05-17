@@ -121,6 +121,7 @@ struct UserView: View {
                 }
             }
         .navigationTitle(currentUser.username)
+        .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 Button {
                     showEdit.toggle()

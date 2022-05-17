@@ -183,7 +183,8 @@ struct LoginView : View {
               )
             }
         }
-        }.navigationTitle("Waitless")
+        }.navigationTitle("Kue")
+            .navigationBarTitleDisplayMode(.large)
     }
     
     

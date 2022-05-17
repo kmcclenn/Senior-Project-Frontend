@@ -20,7 +20,7 @@ struct LeaderboardView: View {
                 List() {
                     ForEach(points.indices) {i in
                     HStack {
-                        Spacer()
+                        
                         if i == 0 {
                             Image("gold-medal")
                                 .resizable()
@@ -81,6 +81,7 @@ struct LeaderboardView: View {
                 }
                 }.listStyle(PlainListStyle())
             }.navigationTitle("Leaderboard")
+                .navigationBarTitleDisplayMode(.large)
             .onAppear {
                 print("points: \(points)")
             }

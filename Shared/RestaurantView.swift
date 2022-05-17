@@ -24,6 +24,7 @@ struct RestaurantView: View {
     @StateObject var updateInstance = Update()
     
     @State var message: String = ""
+    @State var alertTitle: String = ""
     @State private var showAlert = false
     
     @State var showArrival: Bool = false
@@ -187,9 +188,15 @@ struct RestaurantView: View {
                                     inputFieldInFocus = false
                                     DispatchQueue.main.async {
                                         self.inputTime = ""
+                                        self.showArrival = false
                                         self.arrivalTime = Date()
+                                        self.showSeated = false
                                         self.seatedTime = Date()
+                                        message = "Input logged."
+                                        alertTitle = "Success!"
+                                        
                                         reload()
+                                        showAlert = true
                                     }
                                     
                                     
@@ -205,6 +212,7 @@ struct RestaurantView: View {
                                     case.custom(let errorMessage):
                                         message = errorMessage
                                     }
+                                    alertTitle = "Error."
                                     showAlert = true
                                 }
                             }
@@ -231,8 +239,9 @@ struct RestaurantView: View {
                     print("waittime from restaurantview \(String(describing: restaurant.id)): \(waitTime)")
             }
         .navigationTitle("\(restaurant.name)")
+        .navigationBarTitleDisplayMode(.large)
         .alert(isPresented: $showAlert) {
-            Alert(title: Text("Error"),
+            Alert(title: Text(alertTitle),
             message: Text(message),
             dismissButton: .default(Text("Okay"))
          )

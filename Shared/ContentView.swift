@@ -30,7 +30,8 @@ struct ContentView: View {
     
     init() {
         Theme.navigationBarColors(background: backgroundColor, titleColor: UIColor(textColor))
-        
+        //navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        //navigationController?.navigationBar.shadowImage = UIImage()
     }
     
     //@State var user: User?
@@ -56,9 +57,17 @@ struct ContentView: View {
                     Color(uiColor: backgroundColor).ignoresSafeArea()
                 
                 VStack {
+                    
+                        VStack {
+                        
+                            Text("Kue").font(.largeTitle).bold().foregroundColor(textColor)
+                            Text("Shorter Waits").font(.headline).bold().foregroundColor(textColor).padding([.bottom])
+                        
+                        }
+                    Divider()
                     HStack {
                         Spacer()
-                        Text("View restaurants (top has shortest wait time).")
+                        Text("View restaurants in JH (top has shortest wait time).")
                             .foregroundColor(textColor)
                             .font(.headline)
                         Spacer()
@@ -67,7 +76,22 @@ struct ContentView: View {
                     
                     List(restaurants) { restaurant in
                         NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil)) {
-                            Label(title: { Text("\(restaurant.name)").foregroundColor(textColor) } , icon: { Image(systemName: "arrowtriangle.forward.fill") } )
+                            Label(title: {
+                                HStack {
+                                    Text("\(restaurant.name)").bold().foregroundColor(textColor)
+                                    if self.waitTimes[restaurant.id!] ?? -1 == -1 {
+                                        Text(" (no wait time inputs)")
+                                        .foregroundColor(textColor)
+                                    } else {
+                                        Text(" (\(String(describing: self.waitTimes[restaurant.id!]!)) minute long wait time)")
+                                            .foregroundColor(textColor)
+                                    }
+                                    
+                                
+                                }
+                                
+                            } ,
+                                  icon: { Image(systemName: "arrowtriangle.forward.fill") } )
                         }.listRowBackground(Color.init(uiColor: backgroundColor))
                         .listRowSeparatorTint(.white)
                         
@@ -88,11 +112,14 @@ struct ContentView: View {
                                  
                                  loadInstance.load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
                                      print("load WT run")
+                                     print(waitLength)
                                      if waitLength as? String == "error" {
                                          self.waitTimes[restaurant.id!] = -1.0
+                                         print("WT error running")
                                      } else {
                                          self.waitTimes[restaurant.id!] = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
                                      }
+                                     print(self.waitTimes)
                                      
                                  }
                              }
@@ -162,9 +189,13 @@ struct ContentView: View {
                             }
                         }
                 }
-                .navigationTitle("Waitless")
+                //.navigationTitle("Kue")
+                .navigationBarTitleDisplayMode(.inline)
                .toolbar {
                    
+                           
+                           
+                           
                        ToolbarItemGroup(placement: .navigationBarTrailing) {
                            if loggedIn && currentUser != nil {
                                NavigationLink {
@@ -300,6 +331,7 @@ class Load: ObservableObject {
                 } else {
                     
                     print("error in \(string): \(String(describing: error))")
+                    completion("error")
                     return
 
                 }
