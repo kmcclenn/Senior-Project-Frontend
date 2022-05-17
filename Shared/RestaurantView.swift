@@ -57,6 +57,7 @@ struct RestaurantView: View {
 //                }
                 
                 HStack {
+                    Spacer()
                     Link(destination: URL(string: "https://www.google.com/maps/search/?api=1&query=\(restaurant.address.replacingOccurrences(of: " ", with: "+").replacingOccurrences(of: ",", with: "%2C"))")!, label: {
                         Label {
                             Text("Directions").foregroundColor(textColor)
@@ -70,6 +71,7 @@ struct RestaurantView: View {
 
                     })
                     if restaurant.phoneNumber != nil && restaurant.phoneNumber != "" {
+                        Spacer()
                         Link(destination: URL(string: "tel:\(restaurant.phoneNumber!)")!, label: {
                             Label {
                                 Text("Call").foregroundColor(textColor)
@@ -85,6 +87,7 @@ struct RestaurantView: View {
                     
                     }
                     if restaurant.website != nil && restaurant.website != "" {
+                        Spacer()
                          Link(destination: URL(string: "\(String(describing: restaurant.website!))")!, label: {
                              Label {
                                  Text("Website").foregroundColor(textColor)
@@ -100,6 +103,7 @@ struct RestaurantView: View {
                      
                      }
                     if restaurant.yelpPage != nil && restaurant.yelpPage != "" {
+                        Spacer()
                         Link(destination: URL(string: "\(restaurant.yelpPage!)")!, label: {
                             
                             Label {
@@ -115,6 +119,7 @@ struct RestaurantView: View {
                         })
                     
                     }
+                    Spacer()
                 }
                 Spacer()
                 if (waitTime == -1.0) {

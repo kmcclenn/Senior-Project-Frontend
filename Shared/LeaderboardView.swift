@@ -10,13 +10,28 @@ import SwiftUI
 struct LeaderboardView: View {
     @State var points: [Points]
     @State var usernames: [Int:String] = [:]
+    @State var timeBack: String = "All Time"
+    
+    
     
     var body: some View {
         ZStack {
             Color(uiColor: backgroundColor).ignoresSafeArea()
         
             VStack {
-                
+                Picker(selection: $timeBack) {
+                    ForEach(Array(timeBackConversions.keys), id:\.self) {
+                        Text($0).font(.subheadline).foregroundColor(textColor).bold()
+                    }
+                } label: {
+                    Text("Tracking since:")
+                }.pickerStyle(SegmentedPickerStyle())
+                .onChange(of: timeBack) { newValue in
+                    Load().load(endpoint: "user_points/\(timeBackConversions[newValue] ?? 0)", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
+                        self.points = points as! [Points]
+                }
+                }
+
                 List() {
                     ForEach(points.indices) {i in
                     HStack {

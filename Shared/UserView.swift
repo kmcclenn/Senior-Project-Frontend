@@ -19,14 +19,13 @@ struct UserView: View {
                 
                 if (currentUser.firstName ?? nil != nil && currentUser.firstName ?? "" != "") && (currentUser.lastName ?? nil != nil && currentUser.lastName ?? "" != "") {
                     Text("Hello, \(currentUser.firstName ?? "") \(currentUser.lastName ?? "")!")
-                        .font(.system(size: 32.0))
+                        .font(.system(size: 40.0).italic().bold())
                         .foregroundColor(textColor)
                 } else {
                     Text("Hello, \(currentUser.username)!")
-                        .font(.system(size: 32.0))
+                        .font(.system(size: 40.0).italic().bold())
                         .foregroundColor(textColor)
-                        .bold()
-                        .italic()
+                        
                 }
                 
                 

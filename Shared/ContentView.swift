@@ -62,7 +62,7 @@ struct ContentView: View {
                         VStack {
                         
                             Text("Kue").font(.largeTitle).bold().foregroundColor(textColor)
-                            Text("Shorter Waits").font(.headline).bold().foregroundColor(textColor).padding([.bottom])
+                            Text("Wait Less.").font(.headline).bold().foregroundColor(textColor).padding([.bottom])
                         
                         }
                     Divider()
@@ -253,9 +253,9 @@ struct ContentView: View {
                                    EmptyView()
                                })
                                .onAppear {
-                                   loadInstance.load(endpoint: "user_points", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
+                                   loadInstance.load(endpoint: "user_points/0", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
                                        self.leaderPoints = points as! [Points]
-                               }
+                               } // starts off with all time
                            }
                        }
                        }

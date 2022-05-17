@@ -104,14 +104,29 @@ struct CreateRestaurantView: View {
                                 .listRowSeparator(.hidden)
                                 .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                            Picker(selection: $state) {
+                        HStack {
+                            Spacer()
+                            Text("Choose State")
+                                .foregroundColor(textColor)
+                                .font(.headline)
+                            Spacer()
+                        }.background(Color.init(uiColor: backgroundColor))
+                            .listRowBackground(Color.init(uiColor: backgroundColor))
+                            .listRowSeparator(.hidden)
+                        Picker(selection: $state) {
+                                
                                 ForEach(stateChoices, id:\.self) {
                                     Text($0).foregroundColor(textColor).listRowBackground(Color.init(uiColor: backgroundColor))
                                 }
+                                
                             } label: {
                                 Text("Choose State").foregroundColor(textColor)
-                            }.listRowBackground(Color.init(uiColor: backgroundColor))
+                            }.pickerStyle(WheelPickerStyle())
+                            .listRowBackground(Color.init(uiColor: backgroundColor))
                             .listRowSeparatorTint(.white)
+                            .frame(height: 200)
+                            .padding([.top], 0)
+                            
                                 
                     }.onAppear { // ADD THESE
                         UITableView.appearance().backgroundColor = .clear

@@ -20,6 +20,8 @@ struct VerticalLabelStyle: LabelStyle {
     }
 }
 
+let timeBackConversions: [String: Int] = ["All Time": 0, "1 Day": 1, "7 Days": 7, "30 Days": 30]
+
 class Theme {
     static func navigationBarColors(background : UIColor?, titleColor : UIColor? = nil, tintColor : UIColor? = nil ){
         
