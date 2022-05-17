@@ -14,6 +14,7 @@ struct RestaurantView: View {
     @State var loggedIn: Bool
     @StateObject var loginClass: Login
     @State var currentUser: User?
+    @State var waitList: String
     @State private var numberFormatter: NumberFormatter = {
         var nf = NumberFormatter()
         nf.numberStyle = .none
@@ -26,6 +27,9 @@ struct RestaurantView: View {
     @State var message: String = ""
     @State var alertTitle: String = ""
     @State private var showAlert = false
+    
+    @State private var waitArray: [Any] = [[]]
+    @State private var reportCount: Int = 0
     
     @State var showArrival: Bool = false
     @State var showSeated: Bool = false
@@ -124,8 +128,11 @@ struct RestaurantView: View {
                     HStack {
                         Spacer()
                         Text("\(Int(round(waitTime)))").font(.largeTitle).bold().foregroundColor(textColor)
-                        Text("minute long wait time.").foregroundColor(textColor)
+                        Text("minute long wait time (number of reports: \(reportCount))").foregroundColor(textColor)
                         Spacer()
+                    }.onAppear {
+                        waitArray = waitList.components(separatedBy: "], [")
+                        reportCount = waitArray.count
                     }
                 }
                 
@@ -257,6 +264,9 @@ struct RestaurantView: View {
                waitTime = -1.0
             } else {
                 waitTime = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
+                waitList = (waitLength as! WaitTime).waitList
+                waitArray = waitList.components(separatedBy: "], [")
+                reportCount = waitArray.count
             }
         }
         

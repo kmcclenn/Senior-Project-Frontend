@@ -13,6 +13,7 @@ let textColor: Color = Color.white
 struct ContentView: View {
     @State var restaurants = [Restaurant]()
     @State var waitTimes: [Int: Float] = [:]
+    @State var waitLists: [Int: String] = [:]
     @StateObject var loadInstance = Load()
     @State private var restaurantSheet = false
     @State private var loginSheet = false
@@ -75,7 +76,7 @@ struct ContentView: View {
                         // then use token for any necessary api calls.
                     
                     List(restaurants) { restaurant in
-                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil)) {
+                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil, waitList: self.waitLists[restaurant.id!] ?? "")) {
                             Label(title: {
                                 HStack {
                                     Text("\(restaurant.name)").bold().foregroundColor(textColor)
@@ -83,7 +84,7 @@ struct ContentView: View {
                                         Text(" (no wait time inputs)")
                                         .foregroundColor(textColor)
                                     } else {
-                                        Text(" (\(String(describing: self.waitTimes[restaurant.id!]!)) minute long wait time)")
+                                        Text(" (\(String(describing: round(self.waitTimes[restaurant.id!]!))) minute long wait time)")
                                             .foregroundColor(textColor)
                                     }
                                     
@@ -115,9 +116,11 @@ struct ContentView: View {
                                      print(waitLength)
                                      if waitLength as? String == "error" {
                                          self.waitTimes[restaurant.id!] = -1.0
+                                         self.waitLists[restaurant.id!] = ""
                                          print("WT error running")
                                      } else {
                                          self.waitTimes[restaurant.id!] = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
+                                         self.waitLists[restaurant.id!] = (waitLength as! WaitTime).waitList
                                      }
                                      print(self.waitTimes)
                                      
