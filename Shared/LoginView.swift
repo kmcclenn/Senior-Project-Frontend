@@ -229,7 +229,7 @@ final class Login: ObservableObject {
     
     func registerUser(username: String, email: String, firstName: String, lastName: String, password: String, password2: String, completion: @escaping(Result < String, AuthenticationError > ) -> Void) {
         
-        guard let url = URL(string: "http://127.0.0.1:8000/api/appuser/") else {
+        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/appuser/") else {
             print("api is down")
             return
         }
@@ -287,7 +287,7 @@ final class Login: ObservableObject {
     
     func loginUser(username: String, password: String, completion: @escaping(Result < (String,Int), AuthenticationError > ) -> Void) {
         
-        guard let url = URL(string: "http://127.0.0.1:8000/api/api-token-auth/") else {
+        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/api-token-auth/") else {
             print("api is down")
             return
         }

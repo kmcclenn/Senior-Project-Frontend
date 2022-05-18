@@ -22,7 +22,7 @@ struct ContentView: View {
     @State var username: String = ""
     @State var token: String?
     @State var credibility: Float = 1.0
-    @State var leaderPoints = [Points]()
+    @State var leaderPoints: [Points]? = [Points]()
     @State var toLeaderboard = false
     
     @State var showAdd = false
@@ -98,70 +98,12 @@ struct ContentView: View {
                         
 //
                     }.refreshable {
-                        loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
-                            self.restaurants = restaurants as! [Restaurant]
-                        }
+//                        loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
+//                            self.restaurants = restaurants as! [Restaurant]
+//                        }
+                        appearFunction()
                     }.onAppear(perform: {
-                        print("is authenticated: \(loginClass.isAuthenticated)")
-                        
-                        //print("is logged in \(loggedIn)")
-                         loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
-                             self.restaurants = restaurants as! [Restaurant]
-                             print("restaurants: \(self.restaurants.count)")
-                             
-                             for restaurant in self.restaurants {
-                                 
-                                 loadInstance.load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
-                                     print("load WT run")
-                                     print(waitLength)
-                                     if waitLength as? String == "error" {
-                                         self.waitTimes[restaurant.id!] = -1.0
-                                         self.waitLists[restaurant.id!] = ""
-                                         print("WT error running")
-                                     } else {
-                                         self.waitTimes[restaurant.id!] = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
-                                         self.waitLists[restaurant.id!] = (waitLength as! WaitTime).waitList
-                                     }
-                                     print(self.waitTimes)
-                                     
-                                 }
-                             }
-                             print("waittimes: \(self.waitTimes)")
-                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                 self.restaurants.sort {
-                                     let waitTime1 = self.waitTimes[$0.id!] ?? -1
-                                     let waitTime2 = self.waitTimes[$1.id!] ?? -1
-                                     print("wt1: \(waitTime1)")
-                                     if (waitTime1 >= 0 && waitTime2 < 0) {
-                                         return true
-                                     } else if (waitTime1 < 0 && waitTime2 >= 0) {
-                                         return false
-                                     } else if (waitTime1 >= 0 && waitTime2 >= 0) {
-                                         return waitTime1 < waitTime2
-                                     } else if (waitTime1 < 0 && waitTime2 < 0) {
-                                         return false
-                                     } else {
-                                         return false
-                                     }
-                                                    
-                                     
-                                 }
-                             }
-                         }
-                        if loginClass.isAuthenticated {
-                            self.loggedIn = true
-                            
-                            
-                        }
-                        loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
-                            self.currentUser = newUser as? User
-                            
-                            //print("load instance closure running")
-                        }
-                        //self.loggedIn = loginClass.isAuthenticated
-                        print("is logged in \(loggedIn)")
-                        print("current user: \(String(describing: currentUser))")
-                        
+                        appearFunction()
                     }).listStyle(PlainListStyle())
 //                    if loggedIn {
 //                        NavigationLink("View Leaderboards", destination:LeaderboardView(points: self.leaderPoints))
@@ -249,12 +191,18 @@ struct ContentView: View {
                                        .resizable()
                                        .frame(width: 32.0, height: 27.0)
 
-                               }.background(NavigationLink(destination: LeaderboardView(points: self.leaderPoints), isActive: $toLeaderboard) {
+                               }.background(NavigationLink(destination: LeaderboardView(points: self.leaderPoints!), isActive: $toLeaderboard) {
                                    EmptyView()
                                })
                                .onAppear {
+                                   
                                    loadInstance.load(endpoint: "user_points/0", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
+                                       print("points: \(points)")
                                        self.leaderPoints = points as! [Points]
+//                                       if self.leaderPoints == nil {
+//                                           print("points: \(points)")
+//                                           self.leaderPoints = [points as! Points]
+//                                       }
                                } // starts off with all time
                            }
                        }
@@ -269,6 +217,69 @@ struct ContentView: View {
                 
                 }
             }
+        
+    }
+    
+    func appearFunction() {
+        print("is authenticated: \(loginClass.isAuthenticated)")
+        
+        //print("is logged in \(loggedIn)")
+         loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
+             self.restaurants = restaurants as! [Restaurant]
+             print("restaurants: \(self.restaurants.count)")
+             
+             for restaurant in self.restaurants {
+                 
+                 loadInstance.load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
+                     print("load WT run")
+                     print(waitLength)
+                     if waitLength as? String == "error" {
+                         self.waitTimes[restaurant.id!] = -1.0
+                         self.waitLists[restaurant.id!] = ""
+                         print("WT error running")
+                     } else {
+                         self.waitTimes[restaurant.id!] = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
+                         self.waitLists[restaurant.id!] = (waitLength as! WaitTime).waitList
+                     }
+                     print(self.waitTimes)
+                     
+                 }
+             }
+             print("waittimes: \(self.waitTimes)")
+             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                 self.restaurants.sort {
+                     let waitTime1 = self.waitTimes[$0.id!] ?? -1
+                     let waitTime2 = self.waitTimes[$1.id!] ?? -1
+                     print("wt1: \(waitTime1)")
+                     if (waitTime1 >= 0 && waitTime2 < 0) {
+                         return true
+                     } else if (waitTime1 < 0 && waitTime2 >= 0) {
+                         return false
+                     } else if (waitTime1 >= 0 && waitTime2 >= 0) {
+                         return waitTime1 < waitTime2
+                     } else if (waitTime1 < 0 && waitTime2 < 0) {
+                         return false
+                     } else {
+                         return false
+                     }
+                                    
+                     
+                 }
+             }
+         }
+        if loginClass.isAuthenticated {
+            self.loggedIn = true
+            
+            
+        }
+        loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
+            self.currentUser = newUser as? User
+            
+            //print("load instance closure running")
+        }
+        //self.loggedIn = loginClass.isAuthenticated
+        print("is logged in \(loggedIn)")
+        print("current user: \(String(describing: currentUser))")
         
     }
     
@@ -293,7 +304,7 @@ class Load: ObservableObject {
     @Published var user: User?
     
     func load<T: Decodable>(endpoint: String, decodeType: T.Type, string: String, tokenRequired: Bool, completion:@escaping (Any) -> ()) {
-        guard let url = URL(string: "http://127.0.0.1:8000/api/\(endpoint)") else {
+        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/\(endpoint)") else {
             print("api is down")
             return
         }
@@ -318,7 +329,7 @@ class Load: ObservableObject {
         URLSession.shared.dataTask(with: request) {data, response, error in
             
             if let data = data {
-                //print("\(string) data \(String(describing: response))")
+                print("\(string) data \(String(data: data, encoding: .utf8))")
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 
@@ -367,7 +378,7 @@ struct ContentView_Previews: PreviewProvider {
 
 // extra functions //
 //func loadCredibility(user_id: Int, completion:@escaping (Float) -> ()) {
-//        guard let url = URL(string: "http://127.0.0.1:8000/api/get_credibility/\(user_id)") else {
+//        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/get_credibility/\(user_id)") else {
 //            print("api is down")
 //            return
 //        }
@@ -414,7 +425,7 @@ struct ContentView_Previews: PreviewProvider {
 //    }
 //
 //    func loadPoints(completion:@escaping ([Points]) -> ()) {
-//        guard let url = URL(string: "http://127.0.0.1:8000/api/user_points") else {
+//        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/user_points") else {
 //            print("api is down")
 //            return
 //        }
@@ -461,7 +472,7 @@ struct ContentView_Previews: PreviewProvider {
 //    }
 //
 //    func loadUser(user_id: Int, completion:@escaping (User) -> ()) {
-//        guard let url = URL(string: "http://127.0.0.1:8000/api/appuser/\(user_id)") else {
+//        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/appuser/\(user_id)") else {
 //            print("api is down")
 //            return
 //        }
@@ -508,7 +519,7 @@ struct ContentView_Previews: PreviewProvider {
 //
 //    func loadWaitTime(restaurantID:Int, completion:@escaping (Float) -> ()) {
 //
-//        guard let url = URL(string: "http://127.0.0.1:8000/api/average_time/\(restaurantID)") else {
+//        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/average_time/\(restaurantID)") else {
 //            print("api is down")
 //            return
 //        }
@@ -552,7 +563,7 @@ struct ContentView_Previews: PreviewProvider {
 //    func loadRestaurant(completion:@escaping ([Restaurant]) -> ()) {
 //        //print("loaded started")
 //        //print(self.restaurants)
-//        guard let url = URL(string: "http://127.0.0.1:8000/api/restaurant/") else {
+//        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/restaurant/") else {
 //            print("api is down")
 //            return
 //        }

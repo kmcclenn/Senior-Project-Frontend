@@ -20,7 +20,7 @@ struct LeaderboardView: View {
         
             VStack {
                 Picker(selection: $timeBack) {
-                    ForEach(Array(timeBackConversions.keys), id:\.self) {
+                    ForEach(timeChoices, id:\.self) {
                         Text($0).font(.subheadline).foregroundColor(textColor).bold()
                     }
                 } label: {

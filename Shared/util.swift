@@ -21,6 +21,7 @@ struct VerticalLabelStyle: LabelStyle {
 }
 
 let timeBackConversions: [String: Int] = ["All Time": 0, "1 Day": 1, "7 Days": 7, "30 Days": 30]
+let timeChoices: [String] = ["All Time", "1 Day", "7 Days", "30 Days"]
 
 class Theme {
     static func navigationBarColors(background : UIColor?, titleColor : UIColor? = nil, tintColor : UIColor? = nil ){

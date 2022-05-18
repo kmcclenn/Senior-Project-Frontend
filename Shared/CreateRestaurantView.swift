@@ -54,6 +54,7 @@ struct CreateRestaurantView: View {
                                 .listRowSeparator(.hidden)
                                 .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .foregroundColor(Color.black)
                             TextField("Website", text: $website)
                                 .disableAutocorrection(true)
                                 .autocapitalization(.none)
@@ -96,14 +97,13 @@ struct CreateRestaurantView: View {
                                 .listRowSeparator(.hidden)
                                 .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                        
-                            TextField("Zip Code", text: $zip)
-                                .disableAutocorrection(true)
-                                .padding([.leading, .trailing])
-                                .listRowBackground(Color.init(uiColor: backgroundColor))
-                                .listRowSeparator(.hidden)
-                                .shadow(radius: 10.0, x: 5, y: 10)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        TextField("Zip Code", text: $zip)
+                            .disableAutocorrection(true)
+                            .padding([.leading, .trailing])
+                            .listRowBackground(Color.init(uiColor: backgroundColor))
+                            .listRowSeparator(.hidden)
+                            .shadow(radius: 10.0, x: 5, y: 10)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
                         HStack {
                             Spacer()
                             Text("Choose State")
@@ -126,6 +126,8 @@ struct CreateRestaurantView: View {
                             .listRowSeparatorTint(.white)
                             .frame(height: 200)
                             .padding([.top], 0)
+                            
+                        
                             
                                 
                     }.onAppear { // ADD THESE
@@ -237,10 +239,10 @@ class Post: ObservableObject {
         return a == b
     }
     
-    func postAddress(street: String, city: String, state: String, zip: String, completion: @escaping(Result < ReadAddress, PostError > ) -> Void) {
+    func postAddress(street: String, city: String, state: String, zip: String, completion: @escaping(Result < Address, PostError > ) -> Void) {
         
         
-        guard let url = URL(string: "http://127.0.0.1:8000/api/address/") else {
+        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/address/") else {
             print("api is down")
             return
         }
@@ -261,8 +263,8 @@ class Post: ObservableObject {
         }
         let raw = "\(street), \(city), \(state) \(String(intZip!)), USA"
         
-        let addressData = Address(raw: raw, city: city, state: state, zip: intZip!)
-        //print(restaurantData)
+        let addressData = Address(raw: raw, street: street, city: city, state: state, zip: intZip!)
+        print(addressData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         guard let encoded = try? encoder.encode(addressData) else {
@@ -293,7 +295,7 @@ class Post: ObservableObject {
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                
-                if let json = try? decoder.decode(ReadAddress.self, from: data) {
+                if let json = try? decoder.decode(Address.self, from: data) {
                     //print(json)
                     completion(.success(json))
                 } else {
@@ -308,10 +310,10 @@ class Post: ObservableObject {
         }.resume()
     }
     
-    func postRestaurant(name: String, address: ReadAddress, website: String, yelpPage: String, userWhoCreated: Int, phoneNumber: String, completion: @escaping(Result < String, PostError > ) -> Void) {
+    func postRestaurant(name: String, address: Address, website: String, yelpPage: String, userWhoCreated: Int, phoneNumber: String, completion: @escaping(Result < String, PostError > ) -> Void) {
         
         
-        guard let url = URL(string: "http://127.0.0.1:8000/api/restaurant/") else {
+        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/restaurant/") else {
             print("api is down")
             return
         }
@@ -323,11 +325,12 @@ class Post: ObservableObject {
         var formattedWebsite: String
         if website.starts(with: "www.") {
             formattedWebsite = "https://\(website)"
-        } else if !website.starts(with: "https://www.") && yelpPage != "" {
+        } else if !website.starts(with: "https://www.") && website != "" {
             formattedWebsite = "https://www.\(website)"
         } else {
             formattedWebsite = website
         }
+        
         
         var formattedYelp: String
         if !yelpPage.starts(with: "https://www.") && yelpPage != "" {
@@ -356,6 +359,7 @@ class Post: ObservableObject {
         
         let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: formattedWebsite, yelpPage: formattedYelp, phoneNumber: newPhoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
         //print(restaurantData)
+        print("raw: \(restaurantData)")
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         guard let encoded = try? encoder.encode(restaurantData) else {

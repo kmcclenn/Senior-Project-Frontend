@@ -32,17 +32,19 @@ struct Points: Codable, Hashable, Identifiable {
 
 struct Address: Codable, Hashable {
     let raw: String
-    let city: String?
-    let state: String?
-    let zip: Int?
+    let street: String
+    let city: String
+    let state: String
+    let zip: Int
 }
 
 struct ReadAddress: Identifiable, Codable, Hashable {
     let id: Int
     let raw: String
-    let streetNumber: String?
-    let route: String?
-    let locality: String?
+    let street: String?
+    let city: String?
+    let zip: Int?
+    let state: String?
 }
 
 struct SimpleUser: Codable, Hashable {

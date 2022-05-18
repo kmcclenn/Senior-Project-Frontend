@@ -133,7 +133,12 @@ struct RestaurantView: View {
                     HStack {
                         Spacer()
                         Text("\(Int(round(waitTime)))").font(.largeTitle).bold().foregroundColor(textColor)
-                        Text("minute long wait time (number of reports: \(reportCount))").foregroundColor(textColor)
+                        if reportCount == 1 {
+                            Text("minute long wait time (\(reportCount) report)").foregroundColor(textColor)
+                        } else {
+                            Text("minute long wait time (\(reportCount) reports)").foregroundColor(textColor)
+                        }
+                       
                         Spacer()
                     }.onAppear {
                         waitArray = waitList.components(separatedBy: "], [")
@@ -318,6 +323,9 @@ final class Update: ObservableObject {
             } else if intInputTime! < 0 {
                 completion(.failure(.custom(errorMessage: "Please enter a valid number. Try again.")))
                 return
+            } else if intInputTime! > 120 {
+                completion(.failure(.custom(errorMessage: "Wait time too large. Enter a valid number.")))
+                return
             }
         }
         
@@ -326,7 +334,7 @@ final class Update: ObservableObject {
             return
         }
         
-        guard let url = URL(string: "http://127.0.0.1:8000/api/inputtedwaittimes/") else {
+        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/inputtedwaittimes/") else {
             print("api is down")
             return
         }
@@ -358,18 +366,26 @@ final class Update: ObservableObject {
         request.httpBody = encoded
         
         URLSession.shared.dataTask(with: request) {data, response, error in
-            print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
+            //print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
             if let data = data {
-                print("data: \(String(decoding: data, as: UTF8.self))")
+                print("data: (\(String(decoding: data, as: UTF8.self)))")
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
-                if (try? decoder.decode(InputWaitTime.self, from: data)) != nil {
+                do {
+                    try decoder.decode(InputWaitTime.self, from: data)
                     completion(.success("Success"))
-                } else {
+                } catch {
+//                } else {
+                    print("decodererror: \(error)")
+                    if String(decoding: data, as: UTF8.self) == "[\"wait to input new time\"]" {
+                        completion(.failure(.custom(errorMessage: "You can only input a wait time at one restaurant once every 30 minutes.")))
+                        return
+                    }
                     completion(.failure(.custom(errorMessage: "Something went wrong. Try again.")))
                     print("response decoding failed for user")
                 }
             } else {
+                print("input error: \(error)")
                 completion(.failure(.custom(errorMessage: "Something went wrong. Try again.")))
                 print("response decoding failed for user")
             }
@@ -381,7 +397,7 @@ final class Update: ObservableObject {
         
        
         
-        guard let url = URL(string: "http://127.0.0.1:8000/api/appuser/\(newUser.id)/") else {
+        guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/appuser/\(newUser.id)/") else {
             print("api is down")
             return
         }
