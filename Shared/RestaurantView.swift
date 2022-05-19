@@ -296,6 +296,10 @@ final class Update: ObservableObject {
     
     func updateRestaurant(inputTime: String, arrivalTime: Date?, seatedTime: Date?, restaurant: Restaurant, currentUser: User, completion: @escaping(Result < String, InputError > ) -> Void) {
         
+        if arrivalTime != nil && seatedTime != nil {
+            let secondsBetween = arrivalTime!.timeIntervalSince(seatedTime!)
+            print(secondsBetween)
+        }
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         formatter.timeZone = TimeZone(abbreviation: "UTC")
