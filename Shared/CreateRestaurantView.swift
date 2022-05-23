@@ -16,6 +16,7 @@ struct CreateRestaurantView: View {
     @State var yelpPage: String = ""
     @State var phoneNumber: String = "" // only way to include blank space is to type 0
     @State var userWhoCreated: Int
+    @State var imgUrl: String = ""
     
     @State var message: String = ""
     @State private var showAlert = false
@@ -67,6 +68,14 @@ struct CreateRestaurantView: View {
                                 .shadow(radius: 10.0, x: 5, y: 10)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                             TextField("Yelp Page", text: $yelpPage)
+                                .disableAutocorrection(true)
+                                .autocapitalization(.none)
+                                .padding([.leading, .trailing])
+                                .listRowBackground(Color.init(uiColor: backgroundColor))
+                                .listRowSeparator(.hidden)
+                                .shadow(radius: 10.0, x: 5, y: 10)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            TextField("URL of Logo", text: $imgUrl)
                                 .disableAutocorrection(true)
                                 .autocapitalization(.none)
                                 .padding([.leading, .trailing])
@@ -168,7 +177,7 @@ struct CreateRestaurantView: View {
                                     case.success(let json):
                                         let address = json
                                         //let intPhoneNumber: Int = (phoneNumber == nil ? 0 : phoneNumber)
-                                        postInstance.postRestaurant(name: name, address: address, website: website, yelpPage: yelpPage, userWhoCreated: userWhoCreated, phoneNumber: phoneNumber) { result in
+                                        postInstance.postRestaurant(name: name, address: address, website: website, yelpPage: yelpPage, userWhoCreated: userWhoCreated, phoneNumber: phoneNumber, imgUrl: imgUrl) { result in
                                             switch result {
                                             case.success(_):
                                                 DispatchQueue.main.async {
@@ -327,7 +336,7 @@ class Post: ObservableObject {
         }.resume()
     }
     
-    func postRestaurant(name: String, address: Address, website: String, yelpPage: String, userWhoCreated: Int, phoneNumber: String, completion: @escaping(Result < String, PostError > ) -> Void) {
+    func postRestaurant(name: String, address: Address, website: String, yelpPage: String, userWhoCreated: Int, phoneNumber: String, imgUrl: String, completion: @escaping(Result < String, PostError > ) -> Void) {
         
         
 //        let uiImage: UIImage? = image.asUIImage()
@@ -382,7 +391,7 @@ class Post: ObservableObject {
         }
         let newPhoneNumber: String? = intPhoneNumber == nil ? nil : String(intPhoneNumber!)
         
-        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: formattedWebsite, yelpPage: formattedYelp, phoneNumber: newPhoneNumber, userWhoCreated: userWhoCreated) // yelppage, phonenumber are optional
+        let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: formattedWebsite, yelpPage: formattedYelp, phoneNumber: newPhoneNumber, userWhoCreated: userWhoCreated, logoUrl: imgUrl) // yelppage, phonenumber are optional
         //print(restaurantData)
         print("raw: \(restaurantData)")
         let encoder = JSONEncoder()

@@ -30,6 +30,10 @@ struct ContentView: View {
     
     @State var currentUser: User?
     
+    @State private var hasTimeElapsed = false
+    
+    @State private var appearCount = 0
+    
     init() {
         Theme.navigationBarColors(background: backgroundColor, titleColor: UIColor(textColor))
         //navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
@@ -40,70 +44,81 @@ struct ContentView: View {
     //@State var defaults = UserDefaults.standard
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
     var body: some View {
+  
+//        contents.onAppear {
+//            appearFunction()
+//        }
+        origContents
         
-       
-//            Button("Login") { loginSheet.toggle()
-//            }.sheet(isPresented: $loginSheet) {
-//                LoginView()
-//            }
+
+    }
+    
+    var origContents: some View {
+        NavigationView {
+            ZStack {
+                Color(uiColor: backgroundColor).ignoresSafeArea()
             
-            
-            
-            // maybe error here?
-            
-            
-            
-//
-            NavigationView {
-                ZStack {
-                    Color(uiColor: backgroundColor).ignoresSafeArea()
-                
-                VStack {
-                        VStack {
-                        
-                            Text("Kue").font(.largeTitle).bold().foregroundColor(textColor)
-                            Text("Wait Less.").font(.headline).bold().foregroundColor(textColor).padding([.bottom])
-                        }
-                    Divider()
-                    HStack {
-                        Spacer()
-                        Text("View restaurants in JH (top has shortest wait time).")
-                            .foregroundColor(textColor)
-                            .font(.headline)
-                        Spacer()
-                    }
-                        // then use token for any necessary api calls.
+            VStack {
+                    VStack {
                     
-                    List(restaurants) { restaurant in
-                        NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil, waitList: self.waitLists[restaurant.id!] ?? "")) {
-                            Label(title: {
-                                HStack {
-                                    Text("\(restaurant.name)").bold().foregroundColor(textColor)
-                                    if self.waitTimes[restaurant.id!] ?? -1 == -1 {
-                                        Text(" (no wait time inputs)")
-                                        .foregroundColor(textColor)
-                                    } else {
-                                        Text(" (\(String(describing: Int(round(self.waitTimes[restaurant.id!]!)))) minute long wait time)")
-                                            .foregroundColor(textColor)
-                                    }
+                        Text("Kue").font(.largeTitle).bold().foregroundColor(textColor)
+                        Text("Wait Less.").font(.headline).bold().foregroundColor(textColor).padding([.bottom])
+                    }
+                Divider()
+                HStack {
+                    Spacer()
+                    Text("View restaurants in JH (top has shortest wait time).")
+                        .foregroundColor(textColor)
+                        .font(.headline)
+                    Spacer()
+                }
+                    // then use token for any necessary api calls.
+                
+                List(restaurants) { restaurant in
+                    NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil, waitList: self.waitLists[restaurant.id!] ?? "")) {
+                        Label(title: {
+                            HStack {
+                                Spacer()
+                            
+                            VStack {
+                               
+                               
                                     
+                                    Text("\(restaurant.name)").bold().foregroundColor(textColor)
                                 
+                                
+                                if self.waitTimes[restaurant.id!] ?? -1 == -1 {
+                                    Text(" (no wait time inputs)")
+                                    .foregroundColor(textColor)
+                                } else {
+                                    Text(" (\(String(describing: Int(round(self.waitTimes[restaurant.id!]!)))) minute long wait time)")
+                                        .foregroundColor(textColor)
                                 }
                                 
-                            } ,
-                                  icon: { Image(systemName: "arrowtriangle.forward.fill") } )
-                        }.listRowBackground(Color.init(uiColor: backgroundColor))
-                        .listRowSeparatorTint(.white)
-                        
+                            
+                            }
+                                Spacer()
+                            }
+                            
+                        } , icon: {
+                             
+                            Image(systemName: "arrowtriangle.forward.fill")
+                            
+                            
+                            
+                        } )
+                    }.listRowBackground(Color.init(uiColor: backgroundColor))
+                    .listRowSeparatorTint(.white)
+                    
 //
-                    }.refreshable {
+                }.refreshable {
 //                        loadInstance.load(endpoint: "restaurant/", decodeType: [Restaurant].self, string: "restaurant", tokenRequired: false) { (restaurants) in
 //                            self.restaurants = restaurants as! [Restaurant]
 //                        }
-                        appearFunction()
-                    }.onAppear(perform: {
-                        appearFunction()
-                    }).listStyle(PlainListStyle())
+                    appearFunction()
+                }.onAppear(perform: {
+                    appearFunction()
+                }).listStyle(PlainListStyle())
 //                    if loggedIn {
 //                        NavigationLink("View Leaderboards", destination:LeaderboardView(points: self.leaderPoints))
 //                            .onAppear {
@@ -113,124 +128,130 @@ struct ContentView: View {
 //                                }
 //                            }
 //                    }
-                    if !loggedIn {
-                        HStack {
-                            Spacer()
-                            NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: { Text("Login").foregroundColor(textColor).font(.headline).bold() } )
-                                .onChange(of: loginClass.isAuthenticated) { newValue in
-                                    self.loggedIn = newValue
-                                }.onChange(of: loginClass.id) { newValue in
-                                    loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
-                                        self.currentUser = newUser as? User
-                                    }
-                                
-                                }.buttonStyle(PlainButtonStyle())
-                            Spacer()
-                            NavigationLink(destination: LoginView(loginClass: loginClass, logIn: false), label: { Text("Register").foregroundColor(textColor).font(.headline).bold() } )
-                                .buttonStyle(PlainButtonStyle())
-                                
-                            Spacer()
-                            }
+                if !loggedIn {
+                    HStack {
+                        Spacer()
+                        NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: { Text("Login").foregroundColor(textColor).font(.headline).bold() } )
+                            .onChange(of: loginClass.isAuthenticated) { newValue in
+                                self.loggedIn = newValue
+                            }.onChange(of: loginClass.id) { newValue in
+                                loadInstance.load(endpoint: "appuser/\(loginClass.id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
+                                    self.currentUser = newUser as? User
+                                }
+                            
+                            }.buttonStyle(PlainButtonStyle())
+                        Spacer()
+                        NavigationLink(destination: LoginView(loginClass: loginClass, logIn: false), label: { Text("Register").foregroundColor(textColor).font(.headline).bold() } )
+                            .buttonStyle(PlainButtonStyle())
+                            
+                        Spacer()
                         }
-                }
-                //.navigationTitle("Kue")
-                .navigationBarTitleDisplayMode(.inline)
-               .toolbar {
-                   
-                           
-                           
-                           
-                       ToolbarItemGroup(placement: .navigationBarTrailing) {
-                           if loggedIn && currentUser != nil {
-                               NavigationLink {
-                                   UserView(currentUser: currentUser!, credibility: credibility)
-                               } label: {
-                                   Image(systemName: "person.fill")
-                                       .resizable()
-                                       .frame(width: 32.0, height: 32.0)
-                                       .foregroundColor(textColor)
-                                
-                               }.onAppear(perform: {
-                                   let data = try? KeychainHelper.standard.read(service: "token", account: "user")
-                                   token = String(data: data ?? Data.init(), encoding: .utf8)
-                               })
-                                   
-                           }
-                           
-                       }
-                       ToolbarItemGroup(placement: .navigationBarLeading) {
-                           if loggedIn && currentUser != nil {
+                    }
+            }
+            //.navigationTitle("Kue")
+            .navigationBarTitleDisplayMode(.inline)
+           .toolbar {
+               
+                       
+                       
+                       
+                   ToolbarItemGroup(placement: .navigationBarTrailing) {
+                       if loggedIn && currentUser != nil {
+                           NavigationLink {
+                               UserView(currentUser: currentUser!, credibility: credibility)
+                           } label: {
+                               Image(systemName: "person.fill")
+                                   .resizable()
+                                   .frame(width: 32.0, height: 32.0)
+                                   .foregroundColor(textColor)
+                            
+                           }.onAppear(perform: {
+                               let data = try? KeychainHelper.standard.read(service: "token", account: "user")
+                               token = String(data: data ?? Data.init(), encoding: .utf8)
+                           })
                                
-                               // add dropdown menu here.
-                               Menu {
-                                   Button(action: {showAdd.toggle()}, label: {
-                                       Label(title: { Text("Add Restaurant") },
-                                             icon: { Image(systemName: "plus.circle") }
-                                       )
-                                                    
-                                   })
-                                   Button {
-                                       self.toLeaderboard = true
-                                   } label: {
-                                       Label {
-                                           Text("View Leaderboards")
-                                       } icon: {
-                                           Image(systemName: "123.rectangle.fill")
-                                           
-                                       }
-
-                                   }
-                                   Button(action: { signoutUser() },
-                                          label: { Label(title: { Text("Logout") } , icon: { Image(systemName: "rectangle.portrait.and.arrow.right") } ) }
+                       }
+                       
+                   }
+                   ToolbarItemGroup(placement: .navigationBarLeading) {
+                       if loggedIn && currentUser != nil {
+                           
+                           // add dropdown menu here.
+                           Menu {
+                               Button(action: {showAdd.toggle()}, label: {
+                                   Label(title: { Text("Add Restaurant") },
+                                         icon: { Image(systemName: "plus.circle") }
                                    )
-                                   Button {
-                                       self.toAbout = true
-                                   } label: {
-                                       Label {
-                                           Text("About")
-                                       } icon: {
-                                           Image(systemName: "info.circle.fill")
-                                       }
-                                   }
-                                  
-                                   
-                               } label: {
-                                   Image(systemName: "line.3.horizontal")
-                                       .resizable()
-                                       .frame(width: 32.0, height: 27.0)
-
-                               }.background(NavigationLink(destination: LeaderboardView(points: self.leaderPoints!), isActive: $toLeaderboard) {
-                                   EmptyView()
-                               }).background(NavigationLink(destination: AboutView(), isActive: $toAbout) {
-                                   EmptyView()
+                                                
                                })
-                               .onAppear {
-                                   
-                                   loadInstance.load(endpoint: "user_points/0", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
-                                       print("points: \(points)")
-                                       self.leaderPoints = points as! [Points]
+                               Button {
+                                   self.toLeaderboard = true
+                               } label: {
+                                   Label {
+                                       Text("View Leaderboards")
+                                   } icon: {
+                                       Image(systemName: "123.rectangle.fill")
+                                       
+                                   }
+
+                               }
+                               Button(action: { signoutUser() },
+                                      label: { Label(title: { Text("Logout") } , icon: { Image(systemName: "rectangle.portrait.and.arrow.right") } ) }
+                               )
+                               Button {
+                                   self.toAbout = true
+                               } label: {
+                                   Label {
+                                       Text("About")
+                                   } icon: {
+                                       Image(systemName: "info.circle.fill")
+                                   }
+                               }
+                              
+                               
+                           } label: {
+                               Image(systemName: "line.3.horizontal")
+                                   .resizable()
+                                   .frame(width: 32.0, height: 27.0)
+
+                           }.background(NavigationLink(destination: LeaderboardView(points: self.leaderPoints!), isActive: $toLeaderboard) {
+                               EmptyView()
+                           }).background(NavigationLink(destination: AboutView(), isActive: $toAbout) {
+                               EmptyView()
+                           })
+                           .onAppear {
+                               
+                               loadInstance.load(endpoint: "user_points/0", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
+                                   print("points: \(points)")
+                                   self.leaderPoints = points as! [Points]
 //                                       if self.leaderPoints == nil {
 //                                           print("points: \(points)")
 //                                           self.leaderPoints = [points as! Points]
 //                                       }
-                               } // starts off with all time
-                           }
+                           } // starts off with all time
                        }
-                       }
-                   
-               }.sheet(isPresented: $showAdd, content: {
-                   CreateRestaurantView(userWhoCreated: currentUser!.id)
-               })
+                   }
+                   }
+               
+           }.sheet(isPresented: $showAdd, content: {
+               CreateRestaurantView(userWhoCreated: currentUser!.id)
+           })
 //               .frame(maxWidth: .infinity, maxHeight: .infinity) // 1
-               .accentColor(textColor)
+           .accentColor(textColor)
 //                .background(Color.init(uiColor: backgroundColor))
-                
-                }
+            
             }
-        
+        }
+    
     }
+    @State var contents: AnyView = AnyView(EmptyView())
+    
+    
     
     func appearFunction() {
+        print(appearCount)
+        appearCount += 1
+        
         print("is authenticated: \(loginClass.isAuthenticated)")
         
         //print("is logged in \(loggedIn)")
@@ -256,7 +277,13 @@ struct ContentView: View {
                  }
              }
              print("waittimes: \(self.waitTimes)")
+//             if appearCount < 2 {
+//                 contents = AnyView(ProgressView())
+//             }
              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                 
+                 //contents = AnyView(origContents)
+                 
                  self.restaurants.sort {
                      let waitTime1 = self.waitTimes[$0.id!] ?? -1
                      let waitTime2 = self.waitTimes[$1.id!] ?? -1
@@ -303,6 +330,13 @@ struct ContentView: View {
             token = nil
         }
     }
+    
+    private func delayText() async {
+        
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        hasTimeElapsed = true
+    }
+    
 }
     
     

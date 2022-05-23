@@ -15,7 +15,7 @@ struct Restaurant: Codable, Hashable, Identifiable {
     let yelpPage: String?
     let phoneNumber: String?
     let userWhoCreated: Int?
-    //let image: String?
+    let logoUrl: String?
 }
 
 struct User: Codable, Hashable, Identifiable {

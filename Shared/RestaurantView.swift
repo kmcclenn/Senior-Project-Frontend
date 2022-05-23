@@ -46,17 +46,27 @@ struct RestaurantView: View {
         
         ZStack {
             Color(uiColor: backgroundColor).ignoresSafeArea()
-            VStack {
-//                HStack {
-//                    Text("Address").bold()
-//                    Text("addy")
-//                        .foregroundColor(textColor)
-//                        .onChange(of: inputTime) { newValue in
-//                            print("input time: \(inputTime) and binding: \($inputTime)")
-//                        }
-//                }
+            VStack(spacing: 0) {
+//
+                if restaurant.logoUrl != nil {
+                    AsyncImage(url: URL(string: restaurant.logoUrl!)) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                        case .success(let image):
+                            image.resizable().scaledToFit().scaleEffect(0.7).padding(0)
+                        case .failure:
+                           EmptyView()
+                        @unknown default:
+                            EmptyView()
+                        }
+                        
+                    }.padding(0)
+                    
                 
+                }
                 HStack {
+                    
                     Spacer()
                     Link(destination: URL(string: "https://www.google.com/maps/search/?api=1&query=\(restaurant.address.replacingOccurrences(of: " ", with: "+").replacingOccurrences(of: ",", with: "%2C"))")!, label: {
                         Label {
@@ -149,7 +159,7 @@ struct RestaurantView: View {
                 Spacer()
                 if loggedIn {
                     
-                        Text("Report your own wait time here. Either put in a wait time directly or put your arrival time and then the time you were seated.").foregroundColor(textColor) // add a constraint that must be int - if not alert
+                    Text("Report your own wait time here. Either put in a wait time directly or put your arrival time and then the time you were seated.").foregroundColor(textColor).padding()// add a constraint that must be int - if not alert
                         
                         Form {
                             Toggle("Show Arrival Time", isOn: $showArrival)
@@ -262,6 +272,9 @@ struct RestaurantView: View {
             message: Text(message),
             dismissButton: .default(Text("Okay"))
          )
+        }.onTapGesture {
+            print("tapped")
+            self.inputFieldInFocus = false
         }
         }
         
