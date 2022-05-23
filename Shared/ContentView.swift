@@ -24,6 +24,7 @@ struct ContentView: View {
     @State var credibility: Float = 1.0
     @State var leaderPoints: [Points]? = [Points]()
     @State var toLeaderboard = false
+    @State var toAbout = false
     
     @State var showAdd = false
     
@@ -184,6 +185,15 @@ struct ContentView: View {
                                    Button(action: { signoutUser() },
                                           label: { Label(title: { Text("Logout") } , icon: { Image(systemName: "rectangle.portrait.and.arrow.right") } ) }
                                    )
+                                   Button {
+                                       self.toAbout = true
+                                   } label: {
+                                       Label {
+                                           Text("About")
+                                       } icon: {
+                                           Image(systemName: "info.circle.fill")
+                                       }
+                                   }
                                   
                                    
                                } label: {
@@ -192,6 +202,8 @@ struct ContentView: View {
                                        .frame(width: 32.0, height: 27.0)
 
                                }.background(NavigationLink(destination: LeaderboardView(points: self.leaderPoints!), isActive: $toLeaderboard) {
+                                   EmptyView()
+                               }).background(NavigationLink(destination: AboutView(), isActive: $toAbout) {
                                    EmptyView()
                                })
                                .onAppear {
