@@ -59,12 +59,10 @@ struct ContentView: View {
                     Color(uiColor: backgroundColor).ignoresSafeArea()
                 
                 VStack {
-                    
                         VStack {
                         
                             Text("Kue").font(.largeTitle).bold().foregroundColor(textColor)
                             Text("Wait Less.").font(.headline).bold().foregroundColor(textColor).padding([.bottom])
-                        
                         }
                     Divider()
                     HStack {
@@ -85,7 +83,7 @@ struct ContentView: View {
                                         Text(" (no wait time inputs)")
                                         .foregroundColor(textColor)
                                     } else {
-                                        Text(" (\(String(describing: round(self.waitTimes[restaurant.id!]!))) minute long wait time)")
+                                        Text(" (\(String(describing: Int(round(self.waitTimes[restaurant.id!]!)))) minute long wait time)")
                                             .foregroundColor(textColor)
                                     }
                                     

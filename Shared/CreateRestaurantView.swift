@@ -28,6 +28,9 @@ struct CreateRestaurantView: View {
     @State var zip: String = ""
     @StateObject var postInstance = Post()
     
+//    @State var showImagePicker = false
+//    @State var selectedImage: Image? = Image("")
+    
     @State private var numberFormatter: NumberFormatter = {
         var nf = NumberFormatter()
         nf.numberStyle = .none
@@ -126,6 +129,20 @@ struct CreateRestaurantView: View {
                             .listRowSeparatorTint(.white)
                             .frame(height: 200)
                             .padding([.top], 0)
+//                        HStack {
+//                            Spacer()
+//                            Button {
+//                                self.showImagePicker.toggle()
+//                            } label: {
+//                                Text("Choose Image").foregroundColor(textColor)
+//                            }
+//                            if (self.selectedImage != nil && self.selectedImage != Image("")) {
+//                                self.selectedImage!.resizable().scaledToFit()
+//                            }
+//                            Spacer()
+//                        }.background(Color.init(uiColor: backgroundColor))
+//                        .sheet(isPresented: $showImagePicker, content: { ImagePicker(image: self.$selectedImage) } )
+
                             
                         
                             
@@ -312,6 +329,14 @@ class Post: ObservableObject {
     
     func postRestaurant(name: String, address: Address, website: String, yelpPage: String, userWhoCreated: Int, phoneNumber: String, completion: @escaping(Result < String, PostError > ) -> Void) {
         
+        
+//        let uiImage: UIImage? = image.asUIImage()
+//        if uiImage == nil {
+//            completion(.failure(.custom(errorMessage: "Please enter a valid image.")))
+//            return
+//        }
+//        let imgData: Data = uiImage?.jpegData(compressionQuality: 0.1) ?? Data()
+//        let imgString: String = imgData.base64EncodedString()
         
         guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/restaurant/") else {
             print("api is down")

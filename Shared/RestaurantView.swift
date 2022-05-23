@@ -149,7 +149,7 @@ struct RestaurantView: View {
                 Spacer()
                 if loggedIn {
                     
-                        Text("Report your own wait time here:").foregroundColor(textColor) // add a constraint that must be int - if not alert
+                        Text("Report your own wait time here. Either put in a wait time directly or put your arrival time and then the time you were seated.").foregroundColor(textColor) // add a constraint that must be int - if not alert
                         
                         Form {
                             Toggle("Show Arrival Time", isOn: $showArrival)
@@ -300,6 +300,9 @@ final class Update: ObservableObject {
             let secondsBetween = seatedTime!.timeIntervalSince(arrivalTime!)
             if secondsBetween / 60 > 120 {
                 completion(.failure(.custom(errorMessage: "Wait time too large. Enter a valid number.")))
+                return
+            } else if secondsBetween < 0 {
+                completion(.failure(.custom(errorMessage: "Seated time must be after arrival time.")))
                 return
             }
         }
