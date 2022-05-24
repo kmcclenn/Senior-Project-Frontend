@@ -62,9 +62,10 @@ struct ContentView: View {
             }.onAppear {
                 print("vstack appeared")
                 //appearFunction()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                  showContent = true
-                }
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                  showContent = true
+//                }
+                showContent = true
             }
         .onChange(of: self.childViewShown) { newArray in
             print(newArray.values)
@@ -82,33 +83,24 @@ struct ContentView: View {
 //                    appearFunction()
 //                }
                   showContent = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    showContent = true
-                }
+                appearFunction()
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                    showContent = true
+//                }
           }
       }.onChange(of: self.toLeaderboard) { show in
           if show {
               showContent = true
           } else {
-              DispatchQueue.main.async {
-                  appearFunction()
-              }
-                showContent = false
-              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                  showContent = true
-              }
+            showContent = false
+            appearFunction()
         }
     }.onChange(of: self.toAbout) { show in
         if show {
             showContent = true
         } else {
-            DispatchQueue.main.async {
-                appearFunction()
-            }
-              showContent = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                showContent = true
-            }
+            showContent = false
+          appearFunction()
       }
   }
         
@@ -372,6 +364,8 @@ struct ContentView: View {
                                     
                      
                  }
+                 showContent = true
+                 
              }
          }
         if loginClass.isAuthenticated {
