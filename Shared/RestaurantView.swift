@@ -212,6 +212,7 @@ struct RestaurantView: View {
                             updateInstance.updateRestaurant(inputTime: inputTime, arrivalTime: arrival, seatedTime: seated, restaurant: restaurant, currentUser: currentUser!) {result in
                                 switch result {
                                 case.success(_):
+                                    
                                     inputFieldInFocus = false
                                     DispatchQueue.main.async {
                                         self.inputTime = ""
@@ -280,6 +281,8 @@ struct RestaurantView: View {
         
     }
     
+    
+    
     func reload() {
         
         Load().load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
@@ -297,7 +300,6 @@ struct RestaurantView: View {
         
     }
 }
-
 
 
 final class Update: ObservableObject {

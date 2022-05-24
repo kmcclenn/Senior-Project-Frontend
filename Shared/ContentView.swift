@@ -32,7 +32,9 @@ struct ContentView: View {
     
     @State private var hasTimeElapsed = false
     
-    @State private var appearCount = 0
+    @State var showContent = false
+    
+    @State var childViewShown: [Int: Bool] = [:]
     
     init() {
         Theme.navigationBarColors(background: backgroundColor, titleColor: UIColor(textColor))
@@ -44,11 +46,71 @@ struct ContentView: View {
     //@State var defaults = UserDefaults.standard
 //    let queue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
     var body: some View {
-  
-//        contents.onAppear {
-//            appearFunction()
-//        }
-        origContents
+        
+            VStack {
+                if showContent {
+                    origContents
+                    
+                    
+                } else {
+                    ZStack {
+                        Color(uiColor: backgroundColor).ignoresSafeArea()
+                    
+                    ProgressView().progressViewStyle(CircularProgressViewStyle(tint: Color.black))
+                    }
+                }
+            }.onAppear {
+                print("vstack appeared")
+                //appearFunction()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                  showContent = true
+                }
+            }
+        .onChange(of: self.childViewShown) { newArray in
+            print(newArray.values)
+            var show = false
+            for value in newArray.values {
+                if value == true {
+                    show = true
+                    break
+                }
+            }
+            if show {
+                showContent = true
+            } else {
+//                DispatchQueue.main.async {
+//                    appearFunction()
+//                }
+                  showContent = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    showContent = true
+                }
+          }
+      }.onChange(of: self.toLeaderboard) { show in
+          if show {
+              showContent = true
+          } else {
+              DispatchQueue.main.async {
+                  appearFunction()
+              }
+                showContent = false
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                  showContent = true
+              }
+        }
+    }.onChange(of: self.toAbout) { show in
+        if show {
+            showContent = true
+        } else {
+            DispatchQueue.main.async {
+                appearFunction()
+            }
+              showContent = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                showContent = true
+            }
+      }
+  }
         
 
     }
@@ -75,7 +137,8 @@ struct ContentView: View {
                     // then use token for any necessary api calls.
                 
                 List(restaurants) { restaurant in
-                    NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil, waitList: self.waitLists[restaurant.id!] ?? "")) {
+                    
+                    NavigationLink(destination: RestaurantView(restaurant: restaurant, waitTime: self.waitTimes[restaurant.id!] ?? -1, loggedIn: loggedIn, loginClass: loginClass, currentUser: currentUser ?? nil, waitList: self.waitLists[restaurant.id!] ?? ""), isActive: binding(for: restaurant.id!)) {
                         Label(title: {
                             HStack {
                                 Spacer()
@@ -118,6 +181,7 @@ struct ContentView: View {
                     appearFunction()
                 }.onAppear(perform: {
                     appearFunction()
+                    //print("content apepared")
                 }).listStyle(PlainListStyle())
 //                    if loggedIn {
 //                        NavigationLink("View Leaderboards", destination:LeaderboardView(points: self.leaderPoints))
@@ -131,7 +195,7 @@ struct ContentView: View {
                 if !loggedIn {
                     HStack {
                         Spacer()
-                        NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: { Text("Login").foregroundColor(textColor).font(.headline).bold() } )
+                        NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: {               Text("Login").foregroundColor(textColor).font(.headline).bold() } )
                             .onChange(of: loginClass.isAuthenticated) { newValue in
                                 self.loggedIn = newValue
                             }.onChange(of: loginClass.id) { newValue in
@@ -244,13 +308,19 @@ struct ContentView: View {
         }
     
     }
-    @State var contents: AnyView = AnyView(EmptyView())
     
-    
+    private func binding(for key: Int) -> Binding<Bool> {
+            return Binding(get: {
+                return self.childViewShown[key] ?? false
+            }, set: {
+                //print($0)
+                self.childViewShown[key] = $0
+                print(self.childViewShown)
+            })
+        }
     
     func appearFunction() {
-        print(appearCount)
-        appearCount += 1
+
         
         print("is authenticated: \(loginClass.isAuthenticated)")
         
@@ -260,14 +330,14 @@ struct ContentView: View {
              print("restaurants: \(self.restaurants.count)")
              
              for restaurant in self.restaurants {
-                 
+                 self.childViewShown[restaurant.id!] = false
                  loadInstance.load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
-                     print("load WT run")
+                     //print("load WT run")
                      print(waitLength)
                      if waitLength as? String == "error" {
                          self.waitTimes[restaurant.id!] = -1.0
                          self.waitLists[restaurant.id!] = ""
-                         print("WT error running")
+                         //print("WT error running")
                      } else {
                          self.waitTimes[restaurant.id!] = (waitLength as! WaitTime).averageWaittimeWithinPast30Minutes
                          self.waitLists[restaurant.id!] = (waitLength as! WaitTime).waitList
@@ -276,18 +346,18 @@ struct ContentView: View {
                      
                  }
              }
-             print("waittimes: \(self.waitTimes)")
-//             if appearCount < 2 {
-//                 contents = AnyView(ProgressView())
-//             }
+             //print("waittimes: \(self.waitTimes)")
+            
+            
+             
              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                  
-                 //contents = AnyView(origContents)
+                 
                  
                  self.restaurants.sort {
                      let waitTime1 = self.waitTimes[$0.id!] ?? -1
                      let waitTime2 = self.waitTimes[$1.id!] ?? -1
-                     print("wt1: \(waitTime1)")
+                     //print("wt1: \(waitTime1)")
                      if (waitTime1 >= 0 && waitTime2 < 0) {
                          return true
                      } else if (waitTime1 < 0 && waitTime2 >= 0) {
@@ -315,8 +385,8 @@ struct ContentView: View {
             //print("load instance closure running")
         }
         //self.loggedIn = loginClass.isAuthenticated
-        print("is logged in \(loggedIn)")
-        print("current user: \(String(describing: currentUser))")
+        //print("is logged in \(loggedIn)")
+        //print("current user: \(String(describing: currentUser))")
         
     }
     
