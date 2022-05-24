@@ -52,6 +52,7 @@ struct EditUserView: View {
                     .shadow(radius: 10.0, x: 5, y: 10)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 TextField("Email Address", text: $user.email ?? "")
+                    .keyboardType(.emailAddress)
                     .disableAutocorrection(true)
                     .padding([.leading, .trailing])
                     .listRowBackground(Color.init(uiColor: backgroundColor))

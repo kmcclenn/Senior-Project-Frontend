@@ -167,6 +167,7 @@ struct RestaurantView: View {
                             HStack {
                                 TextField("WaitTime", text: $inputTime)
                                     .focused($inputFieldInFocus)
+                                    .keyboardType(.decimalPad)
                                     .onChange(of: inputTime) { newValue in
                                         print(newValue)
                                     }
