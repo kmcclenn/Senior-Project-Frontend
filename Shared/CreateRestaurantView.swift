@@ -48,9 +48,7 @@ struct CreateRestaurantView: View {
                     Text("Restaurant will have to be approved by an Admin before you see it on the page. Will take up to 2-3 business days.").foregroundColor(textColor)
                 
                     List{
-                       
-                            
-                            
+                            // form to create restaurant
                             TextField("Restaurant name", text: $name)
                                 .accentColor(Color.black)
                                 .disableAutocorrection(true)
@@ -139,7 +137,7 @@ struct CreateRestaurantView: View {
                                 ForEach(stateChoices, id:\.self) {
                                     Text($0).foregroundColor(textColor).listRowBackground(Color.init(uiColor: backgroundColor))
                                 }
-                                
+                        
                             } label: {
                                 Text("Choose State").foregroundColor(textColor)
                             }.pickerStyle(WheelPickerStyle())
@@ -147,25 +145,9 @@ struct CreateRestaurantView: View {
                             .listRowSeparatorTint(.white)
                             .frame(height: 200)
                             .padding([.top], 0)
-//                        HStack {
-//                            Spacer()
-//                            Button {
-//                                self.showImagePicker.toggle()
-//                            } label: {
-//                                Text("Choose Image").foregroundColor(textColor)
-//                            }
-//                            if (self.selectedImage != nil && self.selectedImage != Image("")) {
-//                                self.selectedImage!.resizable().scaledToFit()
-//                            }
-//                            Spacer()
-//                        }.background(Color.init(uiColor: backgroundColor))
-//                        .sheet(isPresented: $showImagePicker, content: { ImagePicker(image: self.$selectedImage) } )
-
-                            
-                        
-                            
+ 
                                 
-                    }.onAppear { // ADD THESE
+                    }.onAppear {
                         UITableView.appearance().backgroundColor = .clear
                       }
                       .onDisappear {
@@ -178,9 +160,10 @@ struct CreateRestaurantView: View {
                     
                     
                     .toolbar(content: {
+                        
+                        // save button - first saves address then restaurant
                         ToolbarItemGroup(placement: .navigationBarTrailing) {
                             Button {
-                                //let intZip: Int = (zip == nil ? 0 : zip)
                                 postInstance.postAddress(street: street, city: city, state: state, zip: zip) { result in
                                     switch result {
                                     case.success(let json):
@@ -227,6 +210,8 @@ struct CreateRestaurantView: View {
                                 Text("Save")
                             }
                         }
+                        
+                        // cancel button
                         ToolbarItemGroup(placement: .navigationBarLeading) {
                             Button {
                                 dismiss()
@@ -253,7 +238,7 @@ struct CreateRestaurantView: View {
 }
 
 
-
+// post class
 class Post: ObservableObject {
     enum PostError: Error {
         case custom(errorMessage: String)
@@ -274,6 +259,7 @@ class Post: ObservableObject {
         return a == b
     }
     
+    // creates address
     func postAddress(street: String, city: String, state: String, zip: String, completion: @escaping(Result < Address, PostError > ) -> Void) {
         
         
@@ -287,6 +273,7 @@ class Post: ObservableObject {
             return
         }
         
+        // turns zip into integer and checks to see if numbers
         var intZip: Int?
         intZip = Int(zip)
         if intZip == nil {
@@ -322,7 +309,7 @@ class Post: ObservableObject {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
         request.httpBody = encoded
-        
+        // sends request
         URLSession.shared.dataTask(with: request) {data, response, error in
             //print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
             if let data = data {
@@ -345,16 +332,9 @@ class Post: ObservableObject {
         }.resume()
     }
     
+    // create restaurant
     func postRestaurant(name: String, address: Address, website: String, yelpPage: String, userWhoCreated: Int, phoneNumber: String, imgUrl: String, completion: @escaping(Result < String, PostError > ) -> Void) {
         
-        
-//        let uiImage: UIImage? = image.asUIImage()
-//        if uiImage == nil {
-//            completion(.failure(.custom(errorMessage: "Please enter a valid image.")))
-//            return
-//        }
-//        let imgData: Data = uiImage?.jpegData(compressionQuality: 0.1) ?? Data()
-//        let imgString: String = imgData.base64EncodedString()
         
         guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/restaurant/") else {
             print("api is down")
@@ -364,7 +344,7 @@ class Post: ObservableObject {
             completion(.failure(.custom(errorMessage: "Name is required.")))
             return
         }
-        //print(phoneNumber)
+        // formats website
         var formattedWebsite: String
         if website.starts(with: "www.") {
             formattedWebsite = "https://\(website)"
@@ -381,7 +361,7 @@ class Post: ObservableObject {
         } else {
             formattedYelp = yelpPage
         }
-        
+        // turns phone number into integer and checks to see if numbers
         var intPhoneNumber: Int?
         if phoneNumber == "" {
             intPhoneNumber = nil
@@ -401,7 +381,7 @@ class Post: ObservableObject {
         let newPhoneNumber: String? = intPhoneNumber == nil ? nil : String(intPhoneNumber!)
         
         let restaurantData = Restaurant(id: nil, name: name, address: address.raw, website: formattedWebsite, yelpPage: formattedYelp, phoneNumber: newPhoneNumber, userWhoCreated: userWhoCreated, logoUrl: imgUrl) // yelppage, phonenumber are optional
-        //print(restaurantData)
+
         print("raw: \(restaurantData)")
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -435,6 +415,7 @@ class Post: ObservableObject {
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String : [String]] {
                     print(json)
+                    // deals with errors
                     if (json["name"] ?? [""]).first == "restaurant with this name already exists." {
                         completion(.failure(.custom(errorMessage: "Restaurant already exists.")))
                         return
@@ -468,8 +449,4 @@ class Post: ObservableObject {
         }.resume()
     }
 }
-//struct CreateRestaurantView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        CreateRestaurantView()
-//    }
-//}
+

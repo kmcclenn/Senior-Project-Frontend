@@ -47,7 +47,7 @@ struct RestaurantView: View {
         ZStack {
             Color(uiColor: backgroundColor).ignoresSafeArea()
             VStack(spacing: 0) {
-//
+                // loads restaurant image
                 if restaurant.logoUrl != nil {
                     AsyncImage(url: URL(string: restaurant.logoUrl!)) { phase in
                         switch phase {
@@ -65,6 +65,8 @@ struct RestaurantView: View {
                     
                 
                 }
+                
+                // hstack of links to phone number, website, etc.
                 HStack {
                     
                     Spacer()
@@ -138,7 +140,7 @@ struct RestaurantView: View {
                         Text("See below to input!").foregroundColor(textColor)
                     } else {
                         NavigationLink(destination: LoginView(loginClass: loginClass, logIn: true), label: { Text("Log in to input.").foregroundColor(textColor).bold().underline() } )
-                    }// have link to that.
+                    }
                 } else {
                     HStack {
                         Spacer()
@@ -159,8 +161,8 @@ struct RestaurantView: View {
                 Spacer()
                 if loggedIn {
                     
-                    Text("Report your own wait time here. Either put in a wait time directly or put your arrival time and then the time you were seated.").foregroundColor(textColor).padding()// add a constraint that must be int - if not alert
-                        
+                    Text("Report your own wait time here. Either put in a wait time directly or put your arrival time and then the time you were seated.").foregroundColor(textColor).padding()
+                        // form to input wait times
                         Form {
                             Toggle("Show Arrival Time", isOn: $showArrival)
                             Toggle("Show Seated Time", isOn: $showSeated)
@@ -212,8 +214,7 @@ struct RestaurantView: View {
                             }
                             updateInstance.updateRestaurant(inputTime: inputTime, arrivalTime: arrival, seatedTime: seated, restaurant: restaurant, currentUser: currentUser!) {result in
                                 switch result {
-                                case.success(_):
-                                    
+                                case.success(_): // if updated successfully, alert success and reset
                                     inputFieldInFocus = false
                                     DispatchQueue.main.async {
                                         self.inputTime = ""
@@ -223,18 +224,12 @@ struct RestaurantView: View {
                                         self.seatedTime = Date()
                                         message = "Input logged."
                                         alertTitle = "Success!"
-                                        
                                         reload()
                                         showAlert = true
                                     }
-                                    
-                                    
                                     print("input success")
-                                case.failure(let error):
+                                case.failure(let error): // otherwise, alert error
                                     print("failure error: \(error.localizedDescription)")
-                                    //$inputTime.wrappedValue = 0
-                                    //$arrivalTime.wrappedValue = Date()
-                                    //$seatedTime.wrappedValue = Date()
                                     switch error {
                                     case.notSignedIn:
                                         message = "Sign in first."
@@ -283,7 +278,7 @@ struct RestaurantView: View {
     }
     
     
-    
+    // reload restaurant wait time
     func reload() {
         
         Load().load(endpoint: "average_time/\(restaurant.id!)", decodeType: WaitTime.self, string: "waittime", tokenRequired: false) { waitLength in
@@ -302,7 +297,7 @@ struct RestaurantView: View {
     }
 }
 
-
+// update class (POST)
 final class Update: ObservableObject {
     
     enum InputError: Error {
@@ -310,8 +305,10 @@ final class Update: ObservableObject {
         case notSignedIn
     }
     
+    // update restaurant function
     func updateRestaurant(inputTime: String, arrivalTime: Date?, seatedTime: Date?, restaurant: Restaurant, currentUser: User, completion: @escaping(Result < String, InputError > ) -> Void) {
         
+        // scrubs dates
         if arrivalTime != nil && seatedTime != nil {
             let secondsBetween = seatedTime!.timeIntervalSince(arrivalTime!)
             if secondsBetween / 60 > 120 {
@@ -338,6 +335,7 @@ final class Update: ObservableObject {
             seatedTimeString = formatter.string(from: seatedTime!)
         }
         
+        // checks wait time in bounds
         var intInputTime: Int?
         if inputTime == "" {
             intInputTime = nil
@@ -365,8 +363,8 @@ final class Update: ObservableObject {
             return
         }
       
+        // defines restaurant data
         let restaurantData = InputWaitTime(restaurant: restaurant.id!, waitLength: intInputTime, reportingUser: currentUser.id, arrivalTime: arrivalTimeString, seatedTime: seatedTimeString)
-        //print(restaurantData)
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         guard let encoded = try? encoder.encode(restaurantData) else {
@@ -391,6 +389,7 @@ final class Update: ObservableObject {
         request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
         request.httpBody = encoded
         
+        // sends request
         URLSession.shared.dataTask(with: request) {data, response, error in
             //print("data: \(String(decoding: data ?? Data.init(), as: UTF8.self))")
             if let data = data {
@@ -419,10 +418,9 @@ final class Update: ObservableObject {
         }.resume()
     }
     
+    // update user function
     func updateUser(newUser: User, completion: @escaping(Result < User, InputError > ) -> Void) {
-        
-       
-        
+
         guard let url = URL(string: "https://shrouded-savannah-80431.herokuapp.com/api/appuser/\(newUser.id)/") else {
             print("api is down")
             return
@@ -435,6 +433,7 @@ final class Update: ObservableObject {
             return
         }
         
+        // gets token
         let data = try? KeychainHelper.standard.read(service: "token", account: "user")
         var token = String(data: data ?? Data.init(), encoding: .utf8)
         token = token!
@@ -449,6 +448,8 @@ final class Update: ObservableObject {
         request.addValue("Token \(token!)", forHTTPHeaderField: "Authorization")
         request.httpBody = encoded
         print(request.allHTTPHeaderFields!)
+        
+        // sends request
         URLSession.shared.dataTask(with: request) {data, response, error in
             if let data = data {
                 print("data: \(String(decoding: data, as: UTF8.self))")
@@ -469,9 +470,3 @@ final class Update: ObservableObject {
     }
     
 }
-
-//struct RestaurantView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        RestaurantView(restaurant: Restaurant(id: 1, name: "test", address: "12234", website: "hhhh", yelpPage: "ssss", phoneNumber: 22344), waitTime: 0.0, loggedIn: false, loginClass: Login(), currentUser: User(id: 0, username: "", firstName: "", lastName: "", email: ""))
-//    }
-//}

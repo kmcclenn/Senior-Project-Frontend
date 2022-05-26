@@ -19,6 +19,7 @@ struct LeaderboardView: View {
             Color(uiColor: backgroundColor).ignoresSafeArea()
         
             VStack {
+                // time controls
                 Picker(selection: $timeBack) {
                     ForEach(timeChoices, id:\.self) {
                         Text($0).font(.subheadline).foregroundColor(textColor).bold()
@@ -29,9 +30,10 @@ struct LeaderboardView: View {
                 .onChange(of: timeBack) { newValue in
                     Load().load(endpoint: "user_points/\(timeBackConversions[newValue] ?? 0)", decodeType: [Points].self, string: "points", tokenRequired: true) { points in
                         self.points = points as! [Points]
+                    }
                 }
-                }
-
+                
+                // list of ranked users
                 List() {
                     ForEach(points.indices) {i in
                     HStack {
@@ -81,7 +83,7 @@ struct LeaderboardView: View {
                     }.listRowBackground(Color.init(uiColor: backgroundColor))
                     .listRowSeparatorTint(.white)
                     .onAppear {
-                        
+                        // when appeared, load usernames of users
                         Load().load(endpoint: "appuser/\(points[i].id)", decodeType: User.self, string: "user", tokenRequired: true) { newUser in
                             self.usernames[(newUser as! User).id] = (newUser as! User).username
                         }

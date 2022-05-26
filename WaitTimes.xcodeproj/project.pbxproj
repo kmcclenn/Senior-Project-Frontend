@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F009C5A0283BE65B00CEE89C /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F009C59F283BE65B00CEE89C /* ImagePicker.swift */; };
-		F009C5A1283BE65B00CEE89C /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F009C59F283BE65B00CEE89C /* ImagePicker.swift */; };
 		F06299782808FA690064940C /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = F06299772808FA690064940C /* Auth0 */; };
 		F062997A28090A6D0064940C /* Auth0.plist in Resources */ = {isa = PBXBuildFile; fileRef = F062997928090A6D0064940C /* Auth0.plist */; };
 		F08D6FC1282A0E2C00B58377 /* EditUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08D6FC0282A0E2C00B58377 /* EditUserView.swift */; };
@@ -59,7 +57,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F009C59F283BE65B00CEE89C /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		F06299752808F8B70064940C /* WaitTimes--iOS--Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "WaitTimes--iOS--Info.plist"; sourceTree = "<group>"; };
 		F062997928090A6D0064940C /* Auth0.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Auth0.plist; sourceTree = "<group>"; };
 		F08D6FC0282A0E2C00B58377 /* EditUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditUserView.swift; sourceTree = "<group>"; };
@@ -146,7 +143,6 @@
 				F0BD23052825AEB30020F26B /* UserView.swift */,
 				F08D6FC6282C2FCE00B58377 /* CreateRestaurantView.swift */,
 				F0A248A6283B02A60039510F /* AboutView.swift */,
-				F009C59F283BE65B00CEE89C /* ImagePicker.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -362,7 +358,6 @@
 				F0D24C622820817600CFC467 /* LoginView.swift in Sources */,
 				F08D6FC1282A0E2C00B58377 /* EditUserView.swift in Sources */,
 				F0C0111927EE2991002E82C8 /* RestaurantView.swift in Sources */,
-				F009C5A0283BE65B00CEE89C /* ImagePicker.swift in Sources */,
 				F0BD23062825AEB30020F26B /* UserView.swift in Sources */,
 				F08D6FC7282C2FCE00B58377 /* CreateRestaurantView.swift in Sources */,
 			);
@@ -381,7 +376,6 @@
 				F0D24C632820817600CFC467 /* LoginView.swift in Sources */,
 				F08D6FC2282A0E2C00B58377 /* EditUserView.swift in Sources */,
 				F0C0111A27EE2991002E82C8 /* RestaurantView.swift in Sources */,
-				F009C5A1283BE65B00CEE89C /* ImagePicker.swift in Sources */,
 				F0BD23072825AEB30020F26B /* UserView.swift in Sources */,
 				F08D6FC8282C2FCE00B58377 /* CreateRestaurantView.swift in Sources */,
 			);

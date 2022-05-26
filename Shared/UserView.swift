@@ -15,6 +15,7 @@ struct UserView: View {
         ZStack {
             Color(uiColor: backgroundColor).ignoresSafeArea()
         
+            // displays user info
             VStack {
                 
                 if (currentUser.firstName ?? nil != nil && currentUser.firstName ?? "" != "") && (currentUser.lastName ?? nil != nil && currentUser.lastName ?? "" != "") {

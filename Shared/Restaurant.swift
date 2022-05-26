@@ -7,6 +7,8 @@
 
 import Foundation
 
+// all of the structs required for encoding and decoding
+
 struct Restaurant: Codable, Hashable, Identifiable {
     let id: Int?
     let name: String

@@ -41,6 +41,7 @@ class Theme {
     }
 }
 
+// class to save and edit keychain to store token
 final class KeychainHelper {
     
     static let standard = KeychainHelper()
